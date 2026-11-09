@@ -239,3 +239,33 @@
 #world-app .me6-chapter-control:hover{border-color:#e6bd7d;background:#403727}
 @media(max-width:1120px){#world-app .me6-chapter-control{min-width:110px}#world-app .me6-chapter-control span{font-size:7px}}
 @media(max-width:750px){#world-app .me6-chapter-control{display:none}}
+
+/* 0.6 compact layout: events and city controls remain usable on small screens */
+@media(max-width:600px){
+ #world-app .me4-top{gap:6px;padding:0 8px;}
+ #world-app .me4-top .mw-brand{font-size:17px;flex-shrink:0;}
+ #world-app .me4-top .mw-brand small{font-size:6px;letter-spacing:.08em;}
+ #world-app .me4-top .mw-barline{display:none}
+ #world-app .me4-top .mw-headstat.budget{padding-left:7px}
+ #world-app .me4-top .mw-headstat.budget small{font-size:7px}
+ #world-app .me4-top .mw-headstat.budget b{font-size:13px}
+ #world-app .me4-top .mw-iconbtn{padding:6px 7px;font-size:9px!important}
+ #world-app .mw-spacer{flex:1 1 1px;min-width:0}
+ #world-app .me4-titlebar{min-height:0}
+ #world-app .me4-map-top{left:6px;top:7px;gap:5px;padding:6px 7px;font-size:8px}
+ #world-app .me4-map-top strong{display:none}
+ #world-app .me4-map-top span:nth-child(3){display:none}
+ #world-app .me4-minimap{display:none}
+ #world-app .me4-event-ribbon{left:7px;right:7px;bottom:7px;min-height:53px;padding:7px;gap:7px}
+ #world-app .me4-event-ribbon .me4-red-dot{width:25px;height:25px;font-size:13px}
+ #world-app .me4-event-ribbon b{font-size:10px}
+ #world-app .me4-event-ribbon small{font-size:8px}
+ #world-app .me4-event-ribbon button{padding:7px 8px;font-size:9px!important;max-width:123px;overflow:hidden;text-overflow:ellipsis}
+ #world-app .me6-camera-tools{top:40px;right:6px}
+ #world-app .me4-game-map{min-height:345px!important;height:345px!important}
+ #world-app .mw-map{min-height:345px!important;height:345px!important}
+ #world-app .me4-side-hero{height:118px}
+ #world-app .me4-bottom nav{display:flex;width:100%;max-width:100%;overflow-x:auto;scrollbar-width:none}
+ #world-app .me4-bottom nav::-webkit-scrollbar{display:none}
+ #world-app .me4-bottom nav button{flex:0 0 auto;min-width:60px;padding:0 7px;white-space:normal;text-align:center;font-size:9px!important;line-height:1.2}
+}
