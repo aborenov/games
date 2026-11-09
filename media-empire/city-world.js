@@ -1,4 +1,4 @@
-/* MEDIA EMPIRE 0.3: interactive living city, company property, visitors and editions. */
+/* MEDIA EMPIRE 0.6: cinematic city, objective-based campaign, persistent property and interactive camera. */
 (() => {
   'use strict';
   const api=window.ME_BRIDGE;
@@ -62,7 +62,59 @@
     {id:'dock',week:7,city:'porthaven',title:'Авария на портовых верфях',where:'Старый док, Порт-Хейвен',kind:'Происшествие',lead:'Авария в порту: версии и свидетельства',icon:'🚨'},
     {id:'flood',week:10,city:'belford',title:'Разлив реки у рабочего района',where:'Нижняя набережная',kind:'Наводнение',lead:'Большая вода угрожает домам на набережной',icon:'🌊'}
   ];
-  function defaultWorld(){return {version:3,motion:true,city:'belford',year:1900,view:'city',selected:'newsroom',room:'main',selectedLot:'b1',buildType:'bureau',lots:{},caseNotes:{},interviews:[],newsLog:[],visited:[],cashEvents:[],eraVisits:[1900],helpSeen:false};}
+
+  // Mission deck: 12 newspaper issues are one complete playable chapter.
+  // Future era choices remain a visual preview and do not silently advance the economy.
+  const M6_DECK=[
+    {id:'leader',title:'Битва за первую полосу',subtitle:'Стать самым читаемым изданием Белфорда',flavor:'Соперники уже поделили рынок. Заберите первое место честной конкуренцией.',bonus:['ownpress','verified'],crisis:'Пожар на текстильной фабрике'},
+    {id:'reserve',title:'Газета для каждого',subtitle:'Создать финансово устойчивое издание',flavor:'Доступная газета должна не только нравиться городу, но и приносить деньги.',bonus:['readers','survey'],crisis:'Рост стоимости бумаги'},
+    {id:'trust',title:'Голос города',subtitle:'Добиться высокого доверия аудитории',flavor:'Каждое расследование влияет на отношение людей и на будущие продажи.',bonus:['verified','profit'],crisis:'Политическое давление'},
+    {id:'expansion',title:'Открыть второй город',subtitle:'Построить филиал в Порт-Хейвене',flavor:'Ваши репортёры выходят за пределы Белфорда. Освойте новый рынок.',bonus:['survey','readers'],crisis:'Конкуренция за рекламодателей'},
+    {id:'printing',title:'Независимая типография',subtitle:'Печатать газету на собственном оборудовании',flavor:'Снизьте зависимость от подрядчиков и доживите до конца главы.',bonus:['reserve','verified'],crisis:'Забастовка печатников'}
+  ];
+  const m6mission=()=>M6_DECK[Math.abs(Number(world.missionRoll)||0)%M6_DECK.length];
+  const m6clamp=(v)=>Math.max(0,Math.min(100,Math.round(v)));
+  function m6metrics(){
+    finalizeConstruction();const c=core(),issues=c.history?.length||0;
+    const rivalSales=(c.rivals||[]).filter(r=>r.active!==false).map(r=>Number(r.lastSales)||0);
+    const rivalsMax=Math.max(1,...rivalSales);
+    const owned=Object.entries(world.lots).filter(([id,r])=>LOTS[id]&&r?.status==='complete');
+    const print=owned.some(([,r])=>r.type==='printing');
+    const port=owned.some(([id,r])=>LOTS[id].city==='porthaven');
+    const verified=Object.values(world.caseNotes).filter(r=>r?.published&&r?.notes?.includes('witness')&&r?.notes?.includes('evidence')).length;
+    const positive=(c.history||[]).filter(h=>h.profit>0).length;
+    return {issues,sold:Number(c.readers)||0,cash:Number(c.cash)||0,trust:Number(c.trust)||0,rivalsMax,print,port,verified,positive,interviews:world.interviews.length,owned:owned.length,history:c.history||[],status:c.status};
+  }
+  function m6progress(id,m=m6metrics()){
+    const both=(a,b)=>m6clamp(Math.min(a,b)*100);
+    switch(id){
+      case 'leader':return {title:'№1 по продажам',desc:'Обогнать лучшего конкурента после хотя бы трёх выпусков',value:`${num(m.sold)} / ${num(m.rivalsMax)} экз.`,percent:both(m.sold/Math.max(1,m.rivalsMax),m.issues/3),done:m.issues>=3&&m.sold>m.rivalsMax};
+      case 'reserve':return {title:'Резерв компании',desc:'Не меньше 6 выпусков и 6 500 $ в кассе',value:`${mon(m.cash)} · ${m.issues}/6 вып.`,percent:both(m.cash/6500,m.issues/6),done:m.issues>=6&&m.cash>=6500};
+      case 'trust':return {title:'Репутация и доверие',desc:'Доверие 75/100 после 6 выпусков',value:`${m.trust}/75 · ${m.issues}/6 вып.`,percent:both(m.trust/75,m.issues/6),done:m.issues>=6&&m.trust>=75};
+      case 'expansion':return {title:'Филиал во втором городе',desc:'Постройте здание в Порт-Хейвене и выпустите 6 номеров',value:`${m.port?'Филиал есть':'Нет филиала'} · ${m.issues}/6 вып.`,percent:both(m.port?1:0,m.issues/6),done:m.port&&m.issues>=6};
+      case 'printing':return {title:'Своя типография',desc:'Постройте собственную типографию и выпустите 8 номеров',value:`${m.print?'Построена':'Не построена'} · ${m.issues}/8 вып.`,percent:both(m.print?1:0,m.issues/8),done:m.print&&m.issues>=8};
+      case 'ownpress':return {title:'Независимая печать',desc:'Построить свою типографию',value:m.print?'Есть типография':'Не построена',percent:m.print?100:0,done:m.print};
+      case 'verified':return {title:'Проверенное расследование',desc:'Свидетель + осмотр места + публикация',value:`${m.verified}/1 репортаж`,percent:m6clamp(m.verified*100),done:m.verified>=1};
+      case 'readers':return {title:'Широкая аудитория',desc:'Продать 6 500 экземпляров одного номера',value:`${num(m.sold)} / 6 500`,percent:m6clamp(m.sold/6500*100),done:m.sold>=6500};
+      case 'survey':return {title:'Услышать жителей',desc:'Опросить хотя бы 4 семьи',value:`${m.interviews}/4 опроса`,percent:m6clamp(m.interviews/4*100),done:m.interviews>=4};
+      case 'profit':return {title:'Прибыльные номера',desc:'Провести 4 выпуска с положительной прибылью',value:`${m.positive}/4 выпуска`,percent:m6clamp(m.positive/4*100),done:m.positive>=4};
+      default:return {title:'Финансовая подушка',desc:'Иметь хотя бы 5 500 $',value:`${mon(m.cash)} / 5 500 $`,percent:m6clamp(m.cash/5500*100),done:m.cash>=5500};
+    }
+  }
+  function m6status(){const m=m6metrics(),d=m6mission(),main=m6progress(d.id,m),bonus=d.bonus.map(id=>m6progress(id,m));
+    return {deck:d,main,bonus,done:main.done,finished:m.issues>=12||m.status==='insolvent',issues:m.issues,bonusComplete:bonus.filter(x=>x.done).length};
+  }
+  function m6objectiveMarkup(o,primary=false){return `<article class="me6-objective ${primary?'me6-objective-main':''} ${o.done?'is-complete':''}"><div class="me6-objective-top"><span>${primary?'ОСНОВНАЯ ЦЕЛЬ':'ДОПОЛНИТЕЛЬНАЯ'}</span><b>${o.done?'✓ ВЫПОЛНЕНО':o.percent+'%'}</b></div><h3>${esc(o.title)}</h3><p>${esc(o.desc)}</p><div class="me6-track"><i style="width:${o.percent}%"></i></div><small>${esc(o.value)}</small></article>`;}
+  function m6mini(){const {deck,main,issues,finished}=m6status();return `<section class="me6-goal-summary" aria-label="Цель главы"><div class="me6-goal-head"><span>ГЛАВА I · ГАЗЕТА</span><button data-mwa="missions">ЗАДАЧИ →</button></div><strong>${esc(deck.title)}</strong><div class="me6-goal-sub">${esc(main.title)}</div><div class="me6-track"><i style="width:${main.percent}%"></i></div><div class="me6-goal-foot"><span>${esc(main.value)}</span><b>${finished?(main.done?'ПОБЕДА':'ГЛАВА ЗАВЕРШЕНА'):`${issues} / 12 недель`}</b></div></section>`;}
+  function missionScreen(){const {deck,main,bonus,done,finished,issues,bonusComplete}=m6status(),canReroll=issues===0;
+    const outcome=finished?`<div class="me6-mission-result ${done?'won':'lost'}"><strong>${done?'МИССИЯ ВЫПОЛНЕНА':'ГЛАВА ЗАВЕРШЕНА'}</strong><span>${done?`Основная цель достигнута. Дополнительных задач: ${bonusComplete} из 2.`:'Основная цель не выполнена. Можно начать новую партию с другим набором целей.'}</span></div>`:'';
+    return `<div class="mw-scene me6-mission-screen"><div class="mw-scenehead"><div><div class="mw-kicker">КАМПАНИЯ · ГЛАВА I · 1900</div><h1>Цели газетной эпохи</h1><p>Одна глава — двенадцать выпусков. После неё можно закончить партию или переиграть миссию. Следующие эпохи пока доступны как визуальный тест.</p></div><button class="mw-back" data-mwa="view" data-id="city">← На карту</button></div>
+    <section class="me6-mission-banner"><div><span class="me6-banner-eyebrow">МИССИЯ ${String(world.missionRoll+1).padStart(2,'0')} / БЕЛФОРД 1900</span><h2>${esc(deck.title)}</h2><p>${esc(deck.flavor)}</p></div><div class="me6-dice-area"><button class="me6-dice" data-mwa="roll-mission" ${canReroll?'':'disabled'} title="Перебросить условия миссии до первого выпуска"><span aria-hidden="true">⚄</span> Перебросить цели</button><small>${canReroll?'Можно менять до первого выпуска':'Цели зафиксированы первым выпуском'}</small></div></section>
+    ${outcome}<div class="me6-mission-columns"><div class="me6-mission-stack">${m6objectiveMarkup(main,true)}<div class="me6-mission-row">${bonus.map(x=>m6objectiveMarkup(x)).join('')}</div></div><aside class="me6-mission-sidebar"><div class="me6-overview"><span>ПРОГРЕСС ГЛАВЫ</span><strong>${issues}<small> / 12</small></strong><div class="me6-track"><i style="width:${m6clamp(issues/12*100)}%"></i></div><p>События на улицах, опросы жителей и инвестиции в здания учитываются в целях.</p></div><div class="me6-crisis"><span>ГОРОДСКОЕ ИСПЫТАНИЕ</span><strong>${esc(deck.crisis)}</strong><p>Следите за происшествиями и принимайте решения в редакции.</p><button data-mwa="news">Все события →</button></div><div class="me6-mission-actions"><button class="mw-button primary" data-mwa="desk">${issues===0?'Начать первый выпуск →':'Вернуться к выпуску →'}</button><button class="mw-button" data-mwa="property">Управлять недвижимостью</button></div></aside></div>
+    <div class="mw-text-warning">Результаты рассчитываются из фактических продаж, бюджета и ваших действий. «Кубик» изменяет набор задач, но не переписывает показатели компании и не меняет город случайным образом.</div></div>`;
+  }
+
+  function defaultWorld(){return {version:3,motion:true,missionRoll:0,camera:{zoom:1,x:0,y:0},city:'belford',year:1900,view:'city',selected:'newsroom',room:'main',selectedLot:'b1',buildType:'bureau',lots:{},caseNotes:{},interviews:[],newsLog:[],visited:[],cashEvents:[],eraVisits:[1900],helpSeen:false};}
   function saved(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===3&&typeof x.city==='string'&&x.lots&&typeof x.lots==='object')return {...defaultWorld(),...x,view:'city',selected:'newsroom'};}catch{}return defaultWorld();}
   let world=saved();
   const era=()=>ERAS[world.year]||ERAS[1900];
@@ -73,9 +125,9 @@
   window.ME_WORLD={modifiers,year:()=>world.year};
   const tplt=(tag,cls,text)=>`<${tag} class="${cls}">${text}</${tag}>`;
   function syncBalance(){document.querySelectorAll('[data-me-balance]').forEach(x=>x.textContent=mon(core().cash));}
-  function header(){const s=core();return `<header class="mw-top me4-top"><div class="mw-brand">MEDIA <b>EMPIRE</b><small>ЖИВАЯ ИСТОРИЯ · ГОРОД И МЕДИА</small></div><div class="mw-barline"></div><div class="mw-location"><strong>⌖ ${esc(CITIES[world.city].name)}</strong><small>${world.year} · ${esc(era().title.toUpperCase())}</small></div><div class="me4-era-player"><button data-mwa="view" data-id="city">◀◀</button><span>◉ ${world.year}</span><button data-mwa="view" data-id="city">▶</button></div><div class="mw-headstat budget"><small>КАССА</small><b data-me-balance>${mon(s.cash)}</b></div><div class="mw-headstat"><small>ДОЛГ</small><b>${mon(s.loan)}</b></div><div class="mw-headstat"><small>ДОВЕРИЕ</small><b>${s.trust}/100</b></div><span class="mw-spacer"></span><button class="mw-iconbtn" data-mwa="save">Сохранить</button><button class="mw-iconbtn ${activeIncidents().length?'warn':''}" data-mwa="news">${activeIncidents().length?'! ':''}События ${activeIncidents().length}</button></header>`;}
+  function header(){const s=core();return `<header class="mw-top me4-top"><div class="mw-brand">MEDIA <b>EMPIRE</b><small>ЖИВАЯ ИСТОРИЯ · ГОРОД И МЕДИА</small></div><div class="mw-barline"></div><div class="mw-location"><strong>⌖ ${esc(CITIES[world.city].name)}</strong><small>${world.year} · ${esc(era().title.toUpperCase())}</small></div><button class="me6-chapter-control" data-mwa="missions" title="Открыть задачи главы"><span>ГЛАВА I · ГАЗЕТА</span><strong>НЕДЕЛЯ ${Math.min(s.week,12)} / 12</strong></button><div class="mw-headstat budget"><small>КАССА</small><b data-me-balance>${mon(s.cash)}</b></div><div class="mw-headstat"><small>ДОЛГ</small><b>${mon(s.loan)}</b></div><div class="mw-headstat"><small>ДОВЕРИЕ</small><b>${s.trust}/100</b></div><span class="mw-spacer"></span><button class="mw-iconbtn" data-mwa="save">Сохранить</button><button class="mw-iconbtn ${activeIncidents().length?'warn':''}" data-mwa="news">${activeIncidents().length?'! ':''}События ${activeIncidents().length}</button></header>`;}
 
-  function bottom(){return `<footer class="mw-bottom me4-bottom"><nav><button class="${world.view==='city'?'active':''}" data-mwa="view" data-id="city">Город</button><button class="${world.view==='interior'&&world.selected==='newsroom'?'active':''}" data-mwa="interior" data-id="newsroom">Редакция</button><button class="${world.view==='latest'?'active':''}" data-mwa="view" data-id="latest">Последний номер</button><button class="${world.view==='property'?'active':''}" data-mwa="view" data-id="property">Недвижимость</button><button data-mwa="desk">Верстать номер</button></nav><div class="mw-bottom-summary"><b>№ ${String(Math.min(core().week,12)).padStart(3,'0')} · Городской вестник</b>${core().history.length} выпусков · ${num(core().readers)} читателей</div></footer>`;}
+  function bottom(){return `<footer class="mw-bottom me4-bottom"><nav><button class="${world.view==='city'?'active':''}" data-mwa="view" data-id="city">Город</button><button class="${world.view==='interior'&&world.selected==='newsroom'?'active':''}" data-mwa="interior" data-id="newsroom">Редакция</button><button class="${world.view==='latest'?'active':''}" data-mwa="view" data-id="latest">Последний номер</button><button class="${world.view==='property'?'active':''}" data-mwa="view" data-id="property">Недвижимость</button><button class="${world.view==='missions'?'active':''}" data-mwa="missions">Цели главы</button><button data-mwa="desk">Верстать номер</button></nav><div class="mw-bottom-summary"><b>№ ${String(Math.min(core().week,12)).padStart(3,'0')} · Городской вестник</b>${core().history.length} выпусков · ${num(core().readers)} читателей</div></footer>`;}
   function activeIncidents(){return INCIDENTS.filter(i=>i.week<=core().week&&(!world.caseNotes[i.id]||!world.caseNotes[i.id].published));}
   function xSvg(p){return p.map(n=>Math.round(n)).join(',');}
   function coords(pts){return pts.map(xSvg).join(' ');}
@@ -138,7 +190,7 @@
     const incidents=activeIncidents().filter(i=>i.city===world.city).map(incidentMarker).join('');
     return `<svg viewBox="0 0 1320 820" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Игровой город ${esc(CITIES[world.city].name)}, жилые кварталы, редакции, банк, мэрия и участки"><defs><linearGradient id="mw-land" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${colors[0]}"/><stop offset=".55" stop-color="${colors[1]}"/><stop offset="1" stop-color="${colors[2]}"/></linearGradient><linearGradient id="mw-water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#88a4a0"/><stop offset="1" stop-color="#3c6670"/></linearGradient><pattern id="mw-pavers" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M0 30L30 0" stroke="#e5dabc" stroke-opacity=".065"/><circle cx="15" cy="15" r="1" fill="#f3e8c8" opacity=".16"/></pattern></defs><rect width="1320" height="820" fill="url(#mw-land)"/><rect width="1320" height="820" fill="url(#mw-pavers)"/><path d="${bounds}" fill="url(#mw-water)" stroke="#c0c9a4" stroke-width="17"/>${roads}${train}<g opacity=".72">${trees()}</g>${cars()}${people}${elems}${incidents}<path d="M5 810h1310" stroke="#1f342f" stroke-width="10"/></svg>`;
   }
-  function buildingInfo(id){if(id.startsWith('lot-'))return null;const b=BLD[id];return b||{name:'Городской объект',type:'public',city:world.city};}
+  function buildingInfo(id){if(id.startsWith('lot-')){const key=id.slice(4),r=world.lots[key];if(r?.status==='complete'&&LOTS[key])return {name:TYPES[r.type]?.name||'Объект компании',type:'ours',city:LOTS[key].city,lotKey:key,buildingType:r.type};return null;}const b=BLD[id];return b||{name:'Городской объект',type:'public',city:world.city};}
   // Image-backed city art is a *game scene*, not a screenshot as a substitute for the game.
   // The interactive click zones below are separate DOM elements connected to real gameplay actions.
   const MAP_HOTSPOTS={
@@ -233,14 +285,27 @@
     const heat=activeIncidents().some(e=>e.city===world.city&&e.kind==='Пожар')?`<ellipse cx="${port?1350:1400}" cy="${port?560:626}" rx="35" ry="18" fill="#ff8a40" opacity=".12" filter="url(#me5-haze)"><animate attributeName="opacity" values=".08;.28;.09" dur="2.6s" repeatCount="indefinite"/></ellipse>`:'';
     return `<svg class="me5-citylife" viewBox="0 0 1536 864" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><filter id="me5-haze" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>${water}<g class="me5-citylife-smoke">${stacks}</g><g class="me5-citylife-traffic">${traffic.join('')}</g><g class="me5-citylife-pedestrians">${walkers}</g><g class="me5-citylife-river">${boat}</g>${birds}${heat}</svg>`;
   }
+
+  function me6parcel(p,record){
+    const id=p.id,completed=record.status==='complete',progress=record.status==='building',land=record.status==='land';
+    const t=TYPES[record.type],name=completed?(t?.name||'Объект компании'):progress?'ИДЁТ СТРОИТЕЛЬСТВО':'ЗЕМЛЯ КОМПАНИИ';
+    const yscale=world.year>=2005?1.12:1;
+    const base=`<ellipse cx="90" cy="143" rx="62" ry="17" fill="#071a16" opacity=".46"/><path d="M29 127L104 93L157 118L82 156Z" fill="#bbaa83" stroke="#1f322c" stroke-width="3"/>`;
+    const structure=land?`<path d="M38 127l65 -31l45 24l-64 30Z" fill="#423e31" stroke="#f5d6a0" stroke-width="3" stroke-dasharray="5 4"/><path d="M50 124v-28m66 -5v-24m29 52v-29" stroke="#e3d0a2" stroke-width="4"/>`:
+    progress?`<g class="me6-under-construction"><path d="M45 130V53L116 25L144 41V120L80 148Z" fill="#6e6251" opacity=".52" stroke="#efcc89" stroke-dasharray="6 5" stroke-width="3"/><path d="M45 65l100 -24M45 95l100 -25M45 125l100 -25M45 53l99 88M144 41L45 130" fill="none" stroke="#f0c27a" stroke-width="3"/><path d="M26 57V10L87 -13M26 12H150" fill="none" stroke="#ffd69c" stroke-width="5"/><path d="M92 12v34" stroke="#ffe0aa" stroke-width="2"/><path d="M82 49h18l-8 11z" fill="#e6b65d"/></g>`:
+    `<g class="me6-owned-building" transform="translate(0,${world.year>=2005?-12:0}) scale(1,${yscale})"><path d="M47 137V61L113 33L145 55V121L80 149Z" fill="#ad8156" stroke="#292b29" stroke-width="3"/><path d="M47 61L113 33L145 55L79 84Z" fill="#3c5451" stroke="#d9c394" stroke-width="3"/><path d="M79 84V148L145 121V55" fill="#d0a978" stroke="#353e34" stroke-width="2"/><path d="M47 86L79 99M47 111L79 124M79 104l66 -28M79 128l66 -28" stroke="#e3c495" opacity=".35" stroke-width="3"/><path d="M53 80l12 5v13l-12 -5zM53 106l12 4v13l-12 -5zM86 94l18 -8v16l-18 8zM111 83l18 -9v17l-18 8zM86 120l18 -8v16l-18 7zM111 109l18 -8v16l-18 9z" fill="#496a71" stroke="#f1e4c6" stroke-width="2"/><path d="M68 146v-20l15 -5v24" fill="#4c392c" stroke="#e8c78e" stroke-width="2"/>${record.type==='printing'?`<rect x="119" y="13" width="17" height="43" fill="#936b4f" stroke="#f3d09b" stroke-width="2"/><g><circle cx="128" cy="8" r="10" fill="#e6dcd0" opacity=".4"><animate attributeName="cy" values="8;-26;-56" dur="6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".4;.24;0" dur="6s" repeatCount="indefinite"/></circle></g>`:''}${record.type==='radio'||record.type==='tv'?`<path d="M116 30l12 -75m-17 19h37m-30 10h19" stroke="#e9d0a0" stroke-width="4" fill="none"/>`:''}${record.type==='digital'?`<path d="M79 84L145 55V121L79 148Z" fill="#79afb0" opacity=".34"/>`:''}${record.type==='headquarters'?`<path d="M96 39v-35m-11 8h22" stroke="#fbe1ad" stroke-width="4"/>`:''}</g>`;
+    const label=completed?t.name:name;
+    return `<button type="button" class="me6-parcel ${completed?'completed':progress?'constructing':'owned-land'}" style="left:${p.x}%;top:${p.y}%" data-mwa="${completed?'enter-owned':'lot'}" data-id="${esc(id)}" title="${esc(label)}" aria-label="${esc(label)}: ${esc(id.toUpperCase())}"><svg viewBox="0 0 180 170" aria-hidden="true" focusable="false">${base}${structure}</svg><span class="me6-parcel-caption">${esc(label)}</span></button>`;
+  }
+
   function artCity(){
     const port=world.city==='porthaven';const modern=world.year>=1985;
     const background=port?'assets/porthaven-1900.webp':'assets/belford-1900.webp';
     const zones=MAP_HOTSPOTS[world.city].map(z=>`<button type="button" class="me4-zone ${z.kind==='ours'?'is-ours':''}" style="left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%" data-mwa="building" data-id="${z.id}" aria-label="Открыть объект: ${esc(z.name)}" title="Открыть: ${esc(z.name)}"><span class="me4-zonehint">${esc(z.icon)} ${esc(z.name)} · войти</span></button>`).join('');
-    const plots=MAP_PINS[world.city].map(p=>{const r=world.lots[p.id],built=r&&r.status==='complete',construction=r&&r.status==='building';const display=built?'✓ Свой объект':construction?'◷ Стройка':r?'⚒ Наш участок':'✦ Купить участок';return `<button class="me4-landpin ${built?'developed':''}" style="left:${p.x}%;top:${p.y}%" data-mwa="lot" data-id="${p.id}" title="Участок ${p.id.toUpperCase()}">${display}</button>`;}).join('');
+    const plots=MAP_PINS[world.city].map(p=>{const r=world.lots[p.id];return r?me6parcel(p,r):`<button class="me4-landpin" style="left:${p.x}%;top:${p.y}%" data-mwa="lot" data-id="${p.id}" title="Купить участок ${p.id.toUpperCase()}">✦ Участок ${p.id.toUpperCase()}</button>`;}).join('');
     const events=activeIncidents().filter(x=>x.city===world.city).map((event,i)=>`<button class="me4-emergency" style="left:${port?76:87}%;top:${port?58:68}%" data-mwa="incident" data-id="${event.id}" title="Перейти на место происшествия">!<span class="me4-emergency-label">ЧП · На место</span></button>`).join('');
     const skyline=modern?`<div class="me4-modern-tower tower-a"><i></i></div><div class="me4-modern-tower tower-b"><i></i></div><div class="me4-modern-tower tower-c"><i></i></div>`:'';
-    return `<div class="me4-artmap ${modern?'me4-future':''} ${world.year>=2050?'me4-neofuture':''}" role="group" aria-label="Интерактивная панорама ${esc(CITIES[world.city].name)}"><img src="${background}" draggable="false" alt="Детально нарисованная панорама промышленного города с редакциями, банком, мэрией, типографией, жилыми кварталами, портом и транспортом"/>${skyline}<div class="me4-art-vignette"></div>${cityLife()}${zones}${plots}${events}<div class="me4-art-grain"></div><div class="me4-map-coordinate">${esc(CITIES[world.city].name)} / ${world.year} · НАЖМИТЕ НА ЗДАНИЕ, ЧТОБЫ ВОЙТИ</div></div>`;
+    const camera=world.camera||{zoom:1,x:0,y:0};return `<div class="me6-camera" style="transform:translate(${camera.x||0}%,${camera.y||0}%) scale(${camera.zoom||1})"><div class="me4-artmap ${modern?'me4-future':''} ${world.year>=2050?'me4-neofuture':''}" role="group" aria-label="Интерактивная панорама ${esc(CITIES[world.city].name)}"><img src="${background}" draggable="false" alt="Детально нарисованная панорама промышленного города с редакциями, банком, мэрией, типографией, жилыми кварталами, портом и транспортом"/>${skyline}<div class="me4-art-vignette"></div>${cityLife()}${zones}${plots}${events}<div class="me4-art-grain"></div><div class="me4-map-coordinate">${esc(CITIES[world.city].name)} / ${world.year} · НАЖМИТЕ НА ЗДАНИЕ, ЧТОБЫ ВОЙТИ</div></div></div>`;
   }
   function cityScreen(){
     finalizeConstruction();const c=CITIES[world.city],incidents=activeIncidents().filter(i=>i.city===world.city);
@@ -255,6 +320,7 @@
       <div class="mw-mapwrap me4-mapwrap">
         <div class="mw-map me4-game-map">
           ${artCity()}
+          <div class="me6-camera-tools" aria-label="Камера города"><button title="Приблизить город" aria-label="Приблизить" data-mwa="camera-in">+</button><span>${Math.round((world.camera?.zoom||1)*100)}%</span><button title="Отдалить город" aria-label="Отдалить" data-mwa="camera-out">−</button><button class="me6-camera-reset" title="Сбросить камеру" data-mwa="camera-reset">⌖</button></div>
           <div class="me4-map-top"><span>● ЖИВОЙ ГОРОД</span><strong>${num(c.households)} домохозяйств</strong><span>${esc(era().title)}</span><button type="button" class="me5-motion-control" data-mwa="motion" aria-pressed="${world.motion!==false}" title="Включить или выключить движение городского транспорта и дым">${world.motion!==false?'◉ Движение: ВКЛ':'○ Движение: ВЫКЛ'}</button></div>
           <div class="me4-minimap"><div class="me4-mini-lines"><i></i><i></i><i></i><i></i></div><span>◉ ЦЕНТР ГОРОДА</span><small>${world.city==='belford'?'РАЙОНЫ · ПРИСТАНЬ · ПРИГОРОД':'ПОРТ · ВЕРФИ · ПРИГОРОД'}</small></div>
           ${news?`<div class="me4-event-ribbon"><span class="me4-red-dot">!</span><div><b>${esc(news.title)}</b><small>${esc(news.where)}</small></div><button data-mwa="incident" data-id="${news.id}">Отправить репортёра →</button></div>`:`<div class="me4-event-ribbon peaceful"><span>✓</span><div><b>В городе спокойно</b><small>Редакция следит за ситуацией</small></div><button data-mwa="news">Журнал событий →</button></div>`}
@@ -264,6 +330,7 @@
           <div class="me4-side-content"><p>Начните с редакции. Внутри — отделы, сотрудники, планы выпусков и управление газетой.</p>
             <button class="mw-button primary" data-mwa="building" data-id="newsroom">✒ Войти в редакцию <span>→</span></button>
             <button class="mw-button" data-mwa="latest">▤ Последний опубликованный номер <span>→</span></button>
+            ${m6mini()}
             <div class="me4-side-divider"></div><div class="me4-side-kpi"><span>Собственные здания</span><strong>${holdings}</strong></div><div class="me4-side-kpi"><span>Свободных участков</span><strong>${Object.entries(LOTS).filter(([id,l])=>l.city===world.city&&!world.lots[id]).length}</strong></div><div class="me4-side-kpi"><span>Работающие конкуренты</span><strong>${Object.values(BLD).filter(b=>b.city===world.city&&b.type==='rival').length}</strong></div>
             <div class="me4-side-divider"></div>
             <div class="me4-smallactions"><button data-mwa="interior" data-id="${world.city==='belford'?'bank':'portbank'}">Банк</button><button data-mwa="interior" data-id="${world.city==='belford'?'hall':'porthall'}">Мэрия</button><button data-mwa="property">Земля / стройка</button></div>
@@ -287,6 +354,7 @@
   function getRival(id){return core().rivals.find(x=>x.id===id);}
   function interiorDetails(id){const b=buildingInfo(id);const c=core();const room=Number(world.room)||0,building=b?.name||'Объект';let title='',text='',stats=[],actions=[];
     if(id==='newsroom'){const roomNames=['Редакционный зал','Кабинет главреда','Верстка','Фотоотдел'];title=roomNames[room]||roomNames[0];text=['Здесь корреспонденты выбирают темы, проверяют факты и распределяют полосы. Последний номер хранится отдельно в меню.','Главный редактор управляет репутацией, расследованиями и направлением компании.','На рабочих столах формируется следующий номер: заголовки, тираж, цена, реклама.','Иллюстрации и свидетельства помогают представить жизнь города в газете.'][room]||'';stats=[['Выпуск',String(c.week).padStart(3,'0')],['Сотрудники','6 человек'],['Доверие',c.trust+'/100']];actions=[['Открыть рабочее место','desk'],['Последний номер газеты','latest']];}
+    else if(b?.lotKey){const type=TYPES[b.buildingType];title=['Рабочий зал','Кабинет управляющего','Производство','Службы'][room]||'Рабочий зал';text=type?.desc||'Собственное здание компании работает и приносит операционную пользу.';stats=[['Собственник','Наша компания'],['Город',CITIES[world.city].name],['Преимущество',type?.effect||'—']];actions=[[b.buildingType==='printing'?'Настроить печать':'К плану номера','desk'],['Другие участки','property']];}
     else if(id==='bank'||id==='portbank'){const rs=['Касса','Кредитный отдел','Управляющий','Банковский архив'];title=rs[room]||rs[0];text='Банк выдаёт кредиты под проценты. Деньги можно вложить в участок или строительство, но проценты увеличат издержки редакции.';stats=[['Деньги',mon(c.cash)],['Кредит',mon(c.loan)],['Процент','0,9% за выпуск']];actions=[['Взять кредит 500 $','borrow'],['Погасить 100 $','repay']];}
     else if(id==='hall'||id==='porthall'){const rs=['Городской совет','Кабинет мэра','Земельный отдел','Архив'];title=rs[room]||rs[0];text='Мэрия принимает решения по застройке, аренде и городским услугам. Здесь можно узнать, какие участки продаются, и получить сведения для будущих расследований.';stats=[['Город',CITIES[world.city].name],['Участки',Object.values(LOTS).filter(x=>x.city===world.city).length],['Год',world.year]];actions=[['Узнать о земле','property'],['Запросить городской документ','document']];}
     else if(id==='press'){title=['Печатный цех','Директор','График заказов','Склад бумаги'][room]||'Печатный цех';text='Чужая типография печатает «Городской вестник». Постройте собственную, чтобы уменьшить себестоимость каждого экземпляра.';stats=[['План выпуска',num(c.printed)+' экз.'],['Печать','0,036 $ / экз.'],['Владение','Аренда']];actions=[['Настроить тираж','desk'],['Купить участок','property']];}
@@ -313,7 +381,7 @@
   function show(){finalizeConstruction();const app=document.getElementById('world-app');if(!app)return;
     const inDesk=world.view==='desk';document.getElementById('game').style.display=inDesk?'':'none';app.style.display=inDesk?'none':'flex';document.getElementById('mw-return').style.display=inDesk?'block':'none';
     if(inDesk){api.tab('editor');persist();return;}
-    const main=world.view==='city'?cityScreen():world.view==='interior'?interiorScreen():world.view==='residents'?housesScreen():world.view==='incident'?incidentScreen():world.view==='property'?propertyScreen():world.view==='latest'?latestScreen():world.view==='news'?newsScreen():cityScreen();
+    const main=world.view==='city'?cityScreen():world.view==='interior'?interiorScreen():world.view==='residents'?housesScreen():world.view==='incident'?incidentScreen():world.view==='property'?propertyScreen():world.view==='latest'?latestScreen():world.view==='news'?newsScreen():world.view==='missions'?missionScreen():cityScreen();
     app.innerHTML=header()+`<main class="mw-main"><div class="mw-stage">${main}</div></main>`+bottom();persist();
   }
   function openInterior(id){const b=BLD[id];world.selected=id;world.room='0';if(b?.city)world.city=b.city;world.view=b?.type==='residential'?'residents':'interior';show();}
@@ -321,7 +389,7 @@
   function toast(text){const e=document.getElementById('toast');if(!e)return;e.textContent=text;e.className='toast show';setTimeout(()=>e.className='toast',3200);}
   function noMoney(price){toast('Недостаточно средств: требуется '+mon(price)+'. В банке можно взять кредит.');}
   function transaction(amount,desc){if(!api.transact(amount,desc)){noMoney(-amount);return false;}world.cashEvents.push({week:core().week,amount,desc});return true;}
-  function act(action,id){if(action==='motion'){world.motion=!(world.motion!==false);show();return;}if(action==='city'){world.city=id;world.view='city';show();return;}
+  function act(action,id){if(action==='missions'){world.view='missions';show();return;}if(action==='roll-mission'){if((core().history||[]).length===0){const n=M6_DECK.length;world.missionRoll=(world.missionRoll+1+Math.floor(Math.random()*(n-1)))%n;show();toast('Новые цели миссии выбраны.');}return;}if(action==='camera-in'||action==='camera-out'||action==='camera-reset'){const c=world.camera||{zoom:1,x:0,y:0};const next=action==='camera-reset'?1:Math.min(2.2,Math.max(1,Number((c.zoom+(action==='camera-in'?.25:-.25)).toFixed(2))));world.camera=next===1?{zoom:1,x:0,y:0}:{zoom:next,x:c.x||0,y:c.y||0};show();return;}if(action==='motion'){world.motion=!(world.motion!==false);show();return;}if(action==='city'){world.city=id;world.view='city';world.camera={zoom:1,x:0,y:0};show();return;}
     if(action==='view'){world.view=id;show();return;}
     if(action==='interior'||action==='building'){openInterior(id);return;}
     if(action==='room'){world.room=id;show();return;}
@@ -329,6 +397,7 @@
     if(action==='incident'){openIncident(id);return;}
     if(action==='collect'){const key=world.selected,i=INCIDENTS.find(x=>x.id===key);if(!i)return;const p=world.caseNotes[key]||{notes:[],published:false};if(!p.notes.includes(id)){p.notes.push(id);world.caseNotes[key]=p;world.newsLog.unshift(id==='witness'?'Корреспондент опросил очевидца: '+i.title:'Осмотрены следы происшествия: '+i.title);toast(id==='witness'?'Свидетель опрошен.':'Материальные свидетельства осмотрены.');}show();return;}
     if(action==='file-report'){const i=INCIDENTS.find(x=>x.id===world.selected),p=world.caseNotes[world.selected]||{notes:[],published:false};if(!i||p.published)return;const verified=p.notes.includes('witness')&&p.notes.includes('evidence');p.published=true;world.caseNotes[i.id]=p;api.breaking(i.lead);api.adjustTrust(verified?3:-2);world.newsLog.unshift(verified?'Проверенный репортаж передан в редакцию: '+i.title:'Репортаж без двух источников передан в редакцию: '+i.title);toast(verified?'Репортаж проверен и добавлен в газету.':'Номер получил непроверенный репортаж: доверие снизилось.');world.view='interior';world.selected='newsroom';world.room='0';show();return;}
+    if(action==='enter-owned'){const l=world.lots[id];if(l?.status==='complete'){world.city=LOTS[id].city;world.selected='lot-'+id;world.room='0';world.view='interior';show();}return;}
     if(action==='buy-lot'){const l=LOTS[world.selectedLot];if(world.lots[world.selectedLot])return;if(!transaction(-l.price,'Покупка участка '+world.selectedLot))return;world.lots[world.selectedLot]={status:'land',boughtWeek:core().week,price:l.price};world.newsLog.unshift('Куплен участок '+world.selectedLot+' в городе '+CITIES[l.city].name);show();return;}
     if(action==='build-type'){world.buildType=id;show();return;}
     if(action==='build'){const idLot=world.selectedLot,r=world.lots[idLot],t=TYPES[world.buildType];if(!r||r.status!=='land'||!t||world.year<t.minYear)return;if(!transaction(-t.cost,'Строительство: '+t.name))return;world.lots[idLot]={...r,type:world.buildType,status:'building',finishWeek:core().week+t.time};world.newsLog.unshift('Начато строительство: '+t.name);show();return;}
@@ -349,9 +418,43 @@
   const returnButton=document.createElement('button');returnButton.id='mw-return';returnButton.className='mw-iconbtn';returnButton.textContent='← Город / здания';returnButton.style.cssText='position:fixed;z-index:12000;top:6px;right:130px;display:none;box-shadow:0 8px 22px #0008;';document.body.append(returnButton);
   returnButton.addEventListener('click',()=>{world.view='city';show();});
   app.addEventListener('click',event=>{const target=event.target.closest('[data-mwa]');if(!target)return;event.preventDefault();act(target.dataset.mwa,target.dataset.id);});
-  app.addEventListener('change',event=>{const t=event.target;if(t.dataset.mws==='year'){world.year=Number(t.value)||1900;world.eraVisits=[...new Set([...(world.eraVisits||[]),world.year])];world.newsLog.unshift('Городской мир перешёл в '+world.year+' год (визуальный тест эпохи).');show();}});
+  app.addEventListener('change',event=>{const t=event.target;if(t.dataset.mws==='year'){world.year=Number(t.value)||1900;world.camera={zoom:1,x:0,y:0};world.eraVisits=[...new Set([...(world.eraVisits||[]),world.year])];world.newsLog.unshift('Городской мир перешёл в '+world.year+' год (визуальный тест эпохи).');show();}});
   app.addEventListener('keydown',event=>{if((event.key==='Enter'||event.key===' ')&&event.target.hasAttribute('data-mwa')){event.preventDefault();event.target.click();}});
   window.addEventListener('storage',e=>{if(e.key==='media-empire-studio-newspaper-0.1')show();});
+
+  let me6drag=null;
+  app.addEventListener('pointerdown',ev=>{
+    if((world.camera?.zoom||1)<=1||!ev.isPrimary||ev.button!==0)return;
+    const camera=ev.target.closest('.me6-camera');if(!camera)return;
+    if(ev.target.closest('[data-mwa],button,.me6-parcel,.me4-landpin'))return;
+    const map=ev.target.closest('.me4-game-map');if(!map)return;
+    me6drag={startX:ev.clientX,startY:ev.clientY,x:world.camera.x||0,y:world.camera.y||0,el:camera,rect:map.getBoundingClientRect()};
+    camera.classList.add('is-dragging');camera.setPointerCapture(ev.pointerId);
+    ev.preventDefault();
+  });
+  app.addEventListener('pointermove',ev=>{
+    if(!me6drag)return;
+    const {startX,startY,x,y,el,rect}=me6drag,zoom=world.camera.zoom,limit=(zoom-1)*50;
+    const nx=Math.max(-limit,Math.min(limit,x+(ev.clientX-startX)/Math.max(1,rect.width)*100));
+    const ny=Math.max(-limit,Math.min(limit,y+(ev.clientY-startY)/Math.max(1,rect.height)*100));
+    world.camera.x=nx;world.camera.y=ny;el.style.transform=`translate(${nx}%,${ny}%) scale(${zoom})`;
+  });
+  function me6stopDrag(){if(me6drag){me6drag.el.classList.remove('is-dragging');me6drag=null;persist();}}
+  app.addEventListener('pointerup',me6stopDrag);app.addEventListener('pointercancel',me6stopDrag);
+  app.addEventListener('wheel',ev=>{
+    if(world.view!=='city'||!ev.target.closest('.me4-game-map')||ev.target.closest('.me4-event-ribbon'))return;
+    ev.preventDefault();
+    const c=world.camera||{zoom:1,x:0,y:0};
+    const delta=ev.deltaY<0?.15:-.15;
+    const zoom=Math.max(1,Math.min(2.2,Math.round((c.zoom+delta)*100)/100));
+    if(zoom===c.zoom)return;
+    const limit=(zoom-1)*50;
+    world.camera={zoom,x:zoom===1?0:Math.max(-limit,Math.min(limit,c.x||0)),y:zoom===1?0:Math.max(-limit,Math.min(limit,c.y||0))};
+    const el=app.querySelector('.me6-camera');if(el)el.style.transform=`translate(${world.camera.x}%,${world.camera.y}%) scale(${zoom})`;
+    const val=app.querySelector('.me6-camera-tools span');if(val)val.textContent=Math.round(zoom*100)+'%';
+    persist();
+  },{passive:false});
+  window.ME_WORLD.mission=()=>m6status();
   window.ME_WORLD.reset=()=>{world=defaultWorld();persist();show();};
   window.ME_WORLD.debug=()=>({world,core:core(),modifiers:modifiers()});
   show();

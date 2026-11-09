@@ -152,3 +152,90 @@
 #world-app .me5-water{animation:me5-shimmer 12s linear infinite;pointer-events:none}
 @keyframes me5-shimmer{to{stroke-dashoffset:-240}}
 @media(prefers-reduced-motion:reduce){#world-app .me5-water{animation:none}}
+
+/* MEDIA EMPIRE 0.6 — refined camera, visible construction and campaign dashboard */
+#world-app .me6-camera{position:absolute;inset:0;z-index:1;transform-origin:50% 50%;will-change:transform;transition:transform .23s cubic-bezier(.2,.75,.2,1)}
+#world-app .me6-camera .me4-artmap{position:absolute;inset:0;}
+#world-app .me6-camera.is-dragging{cursor:grabbing!important;transition:none;}
+#world-app .me6-camera.is-dragging .me4-artmap>img{cursor:grabbing;}
+#world-app .me6-camera-tools{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:2px;padding:4px;z-index:15;color:#f2dcc0;background:#141b1be5;border:1px solid #b09062;box-shadow:0 6px 20px #0007;backdrop-filter:blur(10px);border-radius:7px}
+#world-app .me6-camera-tools button{display:grid;place-items:center;border:0;border-radius:4px;background:transparent;color:#ecd1a7;min-width:31px;height:29px;font:700 18px/1 Arial,sans-serif}
+#world-app .me6-camera-tools button:hover,#world-app .me6-camera-tools button:focus-visible{background:#a977454d;color:#fff2c9}
+#world-app .me6-camera-tools span{font:700 10px/1.1 system-ui,sans-serif;min-width:38px;text-align:center;color:#d1c4af;font-variant-numeric:tabular-nums}
+#world-app .me6-camera-tools button.me6-camera-reset{font-size:17px;border-left:1px solid #605a46;border-radius:0}
+#world-app .me6-parcel{position:absolute;z-index:7;display:flex;align-items:center;flex-direction:column;gap:0;width:clamp(88px,11.5%,158px);padding:0;transform:translate(-50%,-75%);background:transparent;border:0;color:#fff2d6;filter:drop-shadow(0 7px 6px #030c0970);text-align:center;cursor:pointer;transition:filter .15s ease,translate .15s ease}
+#world-app .me6-parcel svg{width:100%;height:auto;min-height:0;max-height:none;overflow:visible;pointer-events:none}
+#world-app .me6-parcel:hover,#world-app .me6-parcel:focus-visible{filter:drop-shadow(0 0 12px #ffe0a2) drop-shadow(0 10px 8px #010a08)}
+#world-app .me6-parcel .me6-parcel-caption{font:800 10px/1.2 system-ui,sans-serif;display:block;max-width:180px;padding:6px 8px;background:#192621f2;border:1px solid #c4a274;box-shadow:0 4px 10px #0008;text-shadow:1px 1px 3px #000;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;border-radius:4px;pointer-events:none}
+#world-app .me6-parcel.completed .me6-parcel-caption{background:#6c472be8;border-color:#ffcf8b}
+#world-app .me6-parcel.constructing .me6-parcel-caption{border-color:#eac079;color:#ffdfae}
+#world-app .me6-parcel.owned-land .me6-parcel-caption{color:#f5d5a4;border-color:#a89a75}
+#world-app .me6-parcel.constructing svg{animation:me6buildPulse 4s ease-in-out infinite}
+@keyframes me6buildPulse{0%,100%{filter:brightness(.95)}50%{filter:brightness(1.18)}}
+#world-app .me6-goal-summary{display:flex;flex-direction:column;gap:6px;padding:10px 11px;margin:4px 0 1px;background:linear-gradient(145deg,#3a3025,#1d2825 80%);border:1px solid #8b754e;border-left:3px solid #eab979;box-shadow:inset 0 1px 0 #ffffff0d;border-radius:4px}
+#world-app .me6-goal-head{display:flex;justify-content:space-between;align-items:center;gap:4px;color:#d0bb96;font-size:8px;letter-spacing:.08em;font-weight:850}
+#world-app .me6-goal-head button{border:0;background:transparent;color:#f6cc8e;font-size:9px;font-weight:850;padding:3px 0;cursor:pointer}
+#world-app .me6-goal-head button:hover{text-decoration:underline}
+#world-app .me6-goal-summary>strong{font:19px/1.1 Georgia,serif;color:#f8e4bc;letter-spacing:-.02em}
+#world-app .me6-goal-sub{font-size:10px;color:#d2ccc2}
+#world-app .me6-goal-foot{display:flex;gap:8px;justify-content:space-between;align-items:center;color:#bdb5a6;font-size:9px;font-variant-numeric:tabular-nums}
+#world-app .me6-goal-foot b{color:#efc38a;font-size:9px;white-space:nowrap}
+#world-app .me6-track{width:100%;height:7px;overflow:hidden;border-radius:20px;background:#0a1413;border:1px solid #ffffff1a}
+#world-app .me6-track i{display:block;height:100%;min-width:0;border-radius:20px;background:linear-gradient(90deg,#b57c43,#efc787);box-shadow:0 0 12px #f0ac6340;transition:width .22s ease}
+#world-app .me4-side-hero{height:137px;flex:none}
+#world-app .me4-side-caption h2{font-size:22px}
+#world-app .me4-side-content{padding:11px 12px;gap:6px}
+#world-app .me4-side-content>p{font-size:10px;line-height:1.4}
+#world-app .me4-side-kpi{padding:2px 0}
+#world-app .me4-side-divider{margin:3px 0}
+#world-app .me6-mission-screen{max-width:1460px;gap:14px}
+#world-app .me6-mission-screen .mw-scenehead{margin-bottom:2px}
+#world-app .me6-mission-banner{background:linear-gradient(105deg,#2f3832,#34281d 73%,#49351f);border:1px solid #a68251;border-radius:7px;padding:26px 30px;display:flex;justify-content:space-between;gap:25px;align-items:center;box-shadow:0 12px 32px #04090765;position:relative;overflow:hidden}
+#world-app .me6-mission-banner:before{content:'✦';position:absolute;right:26%;top:-50%;font-size:230px;color:#c3a06c11;pointer-events:none;font-family:Georgia,serif}
+#world-app .me6-banner-eyebrow{font-size:10px;font-weight:850;color:#e7ba79;letter-spacing:.16em}
+#world-app .me6-mission-banner h2{font:normal clamp(30px,3.5vw,51px)/1.04 Georgia,serif;color:#f9e5c1;margin:9px 0}
+#world-app .me6-mission-banner p{font-size:13px;color:#d1cfbd;margin:0;max-width:580px;line-height:1.5}
+#world-app .me6-dice-area{display:flex;align-items:center;flex-direction:column;gap:8px;min-width:177px;position:relative;z-index:2;text-align:center}
+#world-app .me6-dice-area button{padding:13px 15px;border:1px solid #dfbd85;background:linear-gradient(#cda56c,#987343);color:#1c1c18;border-radius:5px;font-size:11px;font-weight:850;box-shadow:0 5px 13px #0006}
+#world-app .me6-dice-area button span{font-size:20px;vertical-align:middle;margin-right:6px}
+#world-app .me6-dice-area button:disabled{filter:grayscale(1);opacity:.65;cursor:default}
+#world-app .me6-dice-area small{font-size:9px;color:#c7bcaa;line-height:1.4}
+#world-app .me6-mission-columns{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:15px}
+#world-app .me6-mission-stack{display:flex;flex-direction:column;gap:14px}
+#world-app .me6-mission-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#world-app .me6-objective{background:linear-gradient(135deg,#26332e,#1b2424);border:1px solid #617260;border-radius:5px;padding:20px;min-height:170px;display:flex;flex-direction:column;gap:9px}
+#world-app .me6-objective-main{min-height:208px;border-color:#9f7953;background:linear-gradient(120deg,#3c382d,#252d2a)}
+#world-app .me6-objective.is-complete{border-color:#7fae84;background:linear-gradient(135deg,#294538,#1d2c29)}
+#world-app .me6-objective-top{display:flex;gap:12px;justify-content:space-between;align-items:center;color:#c1b6a2;font-size:9px;letter-spacing:.1em;font-weight:900}
+#world-app .me6-objective-top b{color:#d9bb85;white-space:nowrap}
+#world-app .me6-objective.is-complete .me6-objective-top b{color:#bde1ac}
+#world-app .me6-objective h3{font:normal 26px/1.07 Georgia,serif;color:#f6e4c5;margin:4px 0 0}
+#world-app .me6-objective-main h3{font-size:35px}
+#world-app .me6-objective p{font-size:11px;color:#bec9bb;margin:0;line-height:1.55;flex:1}
+#world-app .me6-objective>small{color:#e7c28f;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+#world-app .me6-mission-sidebar{display:flex;flex-direction:column;gap:13px}
+#world-app .me6-overview,#world-app .me6-crisis{border:1px solid #665e4c;background:linear-gradient(#25332e,#1b2927);border-radius:5px;padding:19px}
+#world-app .me6-overview>span,#world-app .me6-crisis>span{display:block;font-size:10px;letter-spacing:.12em;font-weight:850;color:#d9b888}
+#world-app .me6-overview>strong{font:normal 57px/1 Georgia,serif;color:#f9e4be;display:block;margin:13px 0 10px}
+#world-app .me6-overview>strong small{font-size:25px;color:#aeac9e}
+#world-app .me6-overview p,#world-app .me6-crisis p{color:#bbc6b9;line-height:1.65;font-size:11px;margin:12px 0 0}
+#world-app .me6-crisis{border-color:#915845;background:linear-gradient(145deg,#45322b,#252b28)}
+#world-app .me6-crisis>strong{font:normal 22px/1.15 Georgia,serif;color:#f0ceaa;display:block;margin-top:10px}
+#world-app .me6-crisis button{border:0;background:transparent;padding:12px 0 0;color:#efc388;font-size:11px;font-weight:750}
+#world-app .me6-mission-actions{display:grid;gap:8px;margin-top:auto}
+#world-app .me6-mission-result{display:flex;gap:12px;align-items:center;padding:14px 18px;border:1px solid #9b6a58;background:#4a3029;color:#f2d6c1;font-size:12px}
+#world-app .me6-mission-result.won{background:#294435;border-color:#85a680;color:#dbedd6}
+#world-app .me6-mission-result>strong{font-size:11px;white-space:nowrap;letter-spacing:.06em}
+#world-app .me6-mission-screen .mw-text-warning{margin-top:3px}
+#world-app .me4-selectline button:hover,#world-app .me4-selectline select:hover{border-color:#e7bb7d;background:#36362d}
+#world-app .me4-side-content .mw-button:hover,#world-app .me4-smallactions button:hover{border-color:#efbb76;filter:brightness(1.1)}
+@media(max-width:1150px){#world-app .me6-mission-columns{grid-template-columns:minmax(0,1fr) 255px}#world-app .me6-mission-banner{padding:21px}#world-app .me6-objective{padding:16px}}
+@media(max-width:850px){#world-app .me6-mission-columns{grid-template-columns:1fr}#world-app .me6-mission-sidebar{display:grid;grid-template-columns:1fr 1fr}#world-app .me6-mission-actions{grid-column:1/-1}#world-app .me4-side-content{overflow:visible}#world-app .me6-camera-tools{right:8px;top:8px}}
+@media(max-width:600px){#world-app .me6-mission-row{grid-template-columns:1fr}#world-app .me6-mission-banner{display:block}#world-app .me6-dice-area{align-items:flex-start;margin-top:18px}#world-app .me6-mission-sidebar{grid-template-columns:1fr}#world-app .me6-mission-actions{grid-column:auto}#world-app .me6-parcel{width:80px}#world-app .me6-parcel .me6-parcel-caption{font-size:8px}#world-app .me6-camera-tools{top:45px;right:5px;padding:2px}#world-app .me6-camera-tools button{min-width:25px;height:27px}}
+@media(prefers-reduced-motion:reduce){#world-app .me6-camera,#world-app .me6-track i{transition:none}#world-app .me6-parcel.constructing svg{animation:none}}
+#world-app .me6-chapter-control{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:143px;height:42px;white-space:nowrap;background:linear-gradient(145deg,#292d29,#192222);border:1px solid #715d40;border-radius:4px;color:#e9c58c;padding:5px 10px;line-height:1.2;cursor:pointer}
+#world-app .me6-chapter-control span{font-size:8px;font-weight:800;letter-spacing:.12em;color:#bfb59d}
+#world-app .me6-chapter-control strong{font-size:11px;letter-spacing:.035em}
+#world-app .me6-chapter-control:hover{border-color:#e6bd7d;background:#403727}
+@media(max-width:1120px){#world-app .me6-chapter-control{min-width:110px}#world-app .me6-chapter-control span{font-size:7px}}
+@media(max-width:750px){#world-app .me6-chapter-control{display:none}}
