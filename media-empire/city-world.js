@@ -62,7 +62,7 @@
     {id:'dock',week:7,city:'porthaven',title:'Авария на портовых верфях',where:'Старый док, Порт-Хейвен',kind:'Происшествие',lead:'Авария в порту: версии и свидетельства',icon:'🚨'},
     {id:'flood',week:10,city:'belford',title:'Разлив реки у рабочего района',where:'Нижняя набережная',kind:'Наводнение',lead:'Большая вода угрожает домам на набережной',icon:'🌊'}
   ];
-  function defaultWorld(){return {version:3,city:'belford',year:1900,view:'city',selected:'newsroom',room:'main',selectedLot:'b1',buildType:'bureau',lots:{},caseNotes:{},interviews:[],newsLog:[],visited:[],cashEvents:[],eraVisits:[1900],helpSeen:false};}
+  function defaultWorld(){return {version:3,motion:true,city:'belford',year:1900,view:'city',selected:'newsroom',room:'main',selectedLot:'b1',buildType:'bureau',lots:{},caseNotes:{},interviews:[],newsLog:[],visited:[],cashEvents:[],eraVisits:[1900],helpSeen:false};}
   function saved(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.version===3&&typeof x.city==='string'&&x.lots&&typeof x.lots==='object')return {...defaultWorld(),...x,view:'city',selected:'newsroom'};}catch{}return defaultWorld();}
   let world=saved();
   const era=()=>ERAS[world.year]||ERAS[1900];
@@ -166,6 +166,73 @@
     ]
   };
   const MAP_PINS={belford:[{id:'b1',x:17,y:56},{id:'b2',x:82,y:80},{id:'b3',x:62,y:81}],porthaven:[{id:'p1',x:40,y:71},{id:'p2',x:91,y:73}]};
+  // 0.5: real browser-rendered city ambience. The image remains a static painting;
+  // vehicles, steam, boats and birds below are separate SVG animation layers.
+  // They do not take pointer events from building and incident hotspots.
+  function cityLife(){
+    if(world.motion===false)return '';
+    const port=world.city==='porthaven', year=world.year;
+    const modern=year>=1955, electric=year>=2005;
+    const puff=(x,y,scale=1,tone='#b5bcb5',seed=0)=>{
+      const dots=Array.from({length:7},(_,i)=>{
+        const begin=-(i*1.55+(seed%4)*.7);
+        const duration=10.5+(i%3)*1.4;
+        const size=(9+(i%3)*2.9)*scale;
+        const drift=28+seed%4*7;
+        return `<ellipse class="me5-puff" cx="0" cy="0" rx="${size.toFixed(1)}" ry="${(size*.72).toFixed(1)}" fill="${tone}" opacity="0" filter="url(#me5-haze)">
+          <animate attributeName="cy" values="0;-${(64*scale).toFixed(1)};-${(143*scale).toFixed(1)}" dur="${duration}s" begin="${begin}s" repeatCount="indefinite"/>
+          <animate attributeName="cx" values="0;${(drift*.55*scale).toFixed(1)};${(drift*scale).toFixed(1)}" dur="${duration}s" begin="${begin}s" repeatCount="indefinite"/>
+          <animate attributeName="rx" values="${size*.65};${size*1.15};${size*1.9}" dur="${duration}s" begin="${begin}s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.37;0.23;0" keyTimes="0;.12;.55;1" dur="${duration}s" begin="${begin}s" repeatCount="indefinite"/>
+        </ellipse>`;
+      }).join('');
+      return `<g class="me5-chimney" transform="translate(${x} ${y})">${dots}</g>`;
+    };
+    const smoke=port
+      ? (electric?[[785,90,.52,'#d5d8d3'],[1459,492,.58,'#d9e6e3']]:[[708,57,.64,'#9c9d98'],[792,47,.63,'#979b95'],[827,37,.72,'#b2b5ae'],[1450,459,.47,'#b6b6b0'],[1378,703,.31,'#c6c8c0']])
+      : (electric?[[1469,257,.45,'#d6dfdb']]:[[1476,223,.64,'#9da19a'],[1504,239,.53,'#c0c0b8'],[1400,526,.26,'#d7d4c8']]);
+    const stacks=smoke.map((p,i)=>puff(...p,i)).join('');
+    const carriage=`<ellipse cx="-2" cy="10" rx="33" ry="5" fill="#172723" opacity=".33"/><path d="M-21 -4L15 -6L24 7L-15 9Z" fill="#59402d" stroke="#caa66e" stroke-width="2"/><path d="M-16 -12L12 -13L18 -5L-20 -3Z" fill="#98734b" stroke="#ead0a5" stroke-width="1.5"/><circle cx="-13" cy="9" r="5" fill="#191d1b" stroke="#b78f57" stroke-width="1.2"/><circle cx="18" cy="7" r="5" fill="#191d1b" stroke="#b78f57" stroke-width="1.2"/><path d="M28 0h17" stroke="#4f3022" stroke-width="2"/><path d="M48 -4q8 -8 13 0l6 10l-5 5l-7 -8l-5 6l-6 -1z" fill="#4b3224"/><circle cx="56" cy="-10" r="5" fill="#715240"/><path d="M66 8l3 8M52 8l-1 9" stroke="#35291f" stroke-width="2"/>`;
+    const tram=`<ellipse cy="14" rx="40" ry="6" fill="#112c25" opacity=".35"/><path d="M-38 -12q0 -6 7 -6h62q8 0 8 7v20h-77z" fill="#6c362a" stroke="#f4d69f" stroke-width="2"/><path d="M-33 -7h65v12h-65z" fill="#e9c185"/><path d="M-30 -6v10M-13 -6v10M3 -6v10M20 -6v10" stroke="#423a31" stroke-width="2"/><path d="M-33 8h66" stroke="#e5a64e" stroke-width="4"/><path d="M-2 -18l2 -22m-12 2h22" stroke="#564835" stroke-width="1.5"/><circle cx="-25" cy="12" r="4" fill="#1b2927"/><circle cx="25" cy="12" r="4" fill="#1b2927"/><circle cx="34" cy="1" r="2" fill="#ffe9aa"/>`;
+    const auto=`<ellipse cy="10" rx="29" ry="6" fill="#172825" opacity=".35"/><path d="M-27 0l7 -13q6 -4 25 -4l12 9l10 3v14h-54z" fill="${electric?'#c3d5c5':'#294e61'}" stroke="#d6c4a3" stroke-width="2"/><path d="M-13 -12h17l9 7h-29z" fill="#91b9b2" opacity=".9"/><path d="M-27 3h54" stroke="#a7b8a7" stroke-width="2"/><circle cx="-18" cy="9" r="6" fill="#26302e" stroke="#ad9e7a"/><circle cx="17" cy="9" r="6" fill="#26302e" stroke="#ad9e7a"/><circle cx="25" cy="-2" r="2" fill="#ffeab5"/>`;
+    const tiny=(kind,path,dur,delay,scale=.75)=>`<g class="me5-moving-unit" opacity=".97"><g transform="scale(${scale})">${kind==='tram'?tram:kind==='carriage'?carriage:auto}</g><animateMotion dur="${dur}s" begin="-${delay}s" path="${path}" rotate="auto" repeatCount="indefinite"/></g>`;
+    const traffic=port?
+      (modern?[
+        tiny('car','M 420 883 Q 535 799 700 750 T 1140 685 T 1630 750',26,6,.72),
+        tiny('car','M 1550 865 C 1290 745 1170 716 1010 738 S 770 830 630 935',30,12,.67),
+        tiny('tram','M 600 952 C 720 842 880 763 1040 740 S 1395 770 1570 826',35,17,.64)
+       ]:[
+        tiny('tram','M 540 905 C 630 825 715 805 850 779 S 1140 785 1590 895',29,5,.78),
+        tiny('carriage','M 1570 880 Q 1370 816 1170 799 T 700 850',35,20,.63),
+        tiny('carriage','M 105 864 Q 260 820 414 841 T 810 865',38,9,.58)
+       ]) :
+      (modern?[
+        tiny('car','M -110 752 C 130 757 345 733 570 698 S 860 615 1080 581 S 1390 591 1650 636',28,10,.72),
+        tiny('car','M 1590 780 C 1340 766 1110 664 955 675 S 630 790 430 890',36,22,.59),
+        tiny('tram','M 1510 558 Q 1340 523 1120 576 T 740 687 T 270 810',39,12,.67)
+       ]:[
+        tiny('tram','M 1540 605 Q 1350 544 1170 567 T 800 651 T 425 779',31,12,.72),
+        tiny('tram','M 520 864 Q 740 720 935 633 T 1350 571 T 1580 594',36,6,.62),
+        tiny('carriage','M -125 735 C 160 726 320 743 485 725 S 733 678 855 648',37,19,.60)
+       ]);
+    const boat=port?`<g class="me5-boat"><path d="M-50 2l107 0l-14 18h-83z" fill="#2d3433" stroke="#d4be8e" stroke-width="2"/><rect x="-23" y="-21" width="41" height="22" rx="3" fill="#e0dac5" stroke="#625a45"/><rect x="-16" y="-15" width="8" height="8" fill="#66878d"/><rect x="-3" y="-15" width="8" height="8" fill="#66878d"/><path d="M5 -20v-19" stroke="#2f3a35" stroke-width="3"/><path d="M-45 21q20 8 40 0t40 0" fill="none" stroke="#ecf2df" stroke-width="2" opacity=".6"/><animateMotion path="M -150 247 C 90 236 295 214 600 157" dur="55s" begin="-17s" rotate="auto" repeatCount="indefinite"/></g>`:
+      `<g class="me5-boat"><path d="M-33 0h66l-7 10h-53z" fill="#2e403d"/><rect x="-13" y="-18" width="26" height="19" fill="#e6d4b1"/><path d="M-26 12q21 5 49 0" stroke="#eaf4e5" stroke-width="2" fill="none"/><animateMotion path="M 995 62 Q 1185 56 1590 103" dur="50s" begin="-21s" rotate="auto" repeatCount="indefinite"/></g>`;
+    const birds=`<g fill="none" stroke="#283f3b" stroke-width="2.5" stroke-linecap="round" opacity=".72"><path d="M0 0q9 -8 18 0q8 -8 16 0"/><path d="M35 17q7 -6 14 0q7 -6 14 0"/><animateMotion path="M 120 145 C 540 66 940 24 1540 110" dur="40s" begin="-16s" rotate="auto" repeatCount="indefinite"/></g>`;
+    // Small human-scale movement; quiet enough to preserve legibility of the painting.
+    const walkingFigure=(tint='#342d24')=>`<circle cx="0" cy="-7" r="3.1" fill="#c7ad8c"/><path d="M-3 -3L3 -3L4 9L-3 9Z" fill="${tint}" stroke="#1c211b" stroke-width=".85"/><path d="M-2 8l-2 7m6 -7l3 7m-8 -15l-4 7m10 -7l4 7" fill="none" stroke="#1f2522" stroke-width="1.7" stroke-linecap="round"><animate attributeName="d" values="M-2 8l-2 7m6 -7l3 7m-8 -15l-4 7m10 -7l4 7;M-2 8l3 7m2 -7l-2 7m-8 -15l-3 7m10 -7l-4 7;M-2 8l-2 7m6 -7l3 7m-8 -15l-4 7m10 -7l4 7" dur=".65s" repeatCount="indefinite"/></path>`;
+    const walkers=(port?[
+      ['M 790 707 Q 860 695 956 710 T 1110 746',37,7,.79,'#374a43'],
+      ['M 385 746 Q 457 762 523 750 T 650 725',33,14,.68,'#584032'],
+      ['M 1000 586 Q 1060 606 1145 620',28,9,.58,'#6c5135']
+    ]:[
+      ['M 845 735 Q 930 717 1010 727 T 1120 747',34,11,.81,'#354a43'],
+      ['M 350 755 Q 430 779 520 745 T 710 708',39,18,.68,'#493a33'],
+      ['M 1160 642 Q 1220 632 1290 657',29,6,.61,'#654e3c']
+    ]).map(([path,duration,offset,size,tint])=>`<g class="me5-pedestrian"><g transform="scale(${size})">${walkingFigure(tint)}</g><animateMotion dur="${duration}s" begin="-${offset}s" path="${path}" rotate="auto" repeatCount="indefinite"/></g>`).join('');
+    const water=port ? `<g class="me5-water" fill="none" stroke="#e5f3de" opacity=".22" stroke-linecap="round"><path d="M 65 178q58 -12 116 -6t102 -6M 350 145q65 -10 115 -2M 900 180q45 -8 97 -2" stroke-width="2.1" stroke-dasharray="24 42"/><path d="M 40 243q55 -9 112 -4M 500 164q40 -8 73 -2" stroke-width="1.4" stroke-dasharray="12 29"/></g>`:`<g class="me5-water" fill="none" stroke="#dcece0" opacity=".14" stroke-linecap="round"><path d="M 998 45q75 -9 136 -4M 1120 68q57 -4 115 0M 1380 81q51 -5 100 0" stroke-width="1.7" stroke-dasharray="18 35"/></g>`;
+    const heat=activeIncidents().some(e=>e.city===world.city&&e.kind==='Пожар')?`<ellipse cx="${port?1350:1400}" cy="${port?560:626}" rx="35" ry="18" fill="#ff8a40" opacity=".12" filter="url(#me5-haze)"><animate attributeName="opacity" values=".08;.28;.09" dur="2.6s" repeatCount="indefinite"/></ellipse>`:'';
+    return `<svg class="me5-citylife" viewBox="0 0 1536 864" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><filter id="me5-haze" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>${water}<g class="me5-citylife-smoke">${stacks}</g><g class="me5-citylife-traffic">${traffic.join('')}</g><g class="me5-citylife-pedestrians">${walkers}</g><g class="me5-citylife-river">${boat}</g>${birds}${heat}</svg>`;
+  }
   function artCity(){
     const port=world.city==='porthaven';const modern=world.year>=1985;
     const background=port?'assets/porthaven-1900.webp':'assets/belford-1900.webp';
@@ -173,7 +240,7 @@
     const plots=MAP_PINS[world.city].map(p=>{const r=world.lots[p.id],built=r&&r.status==='complete',construction=r&&r.status==='building';const display=built?'✓ Свой объект':construction?'◷ Стройка':r?'⚒ Наш участок':'✦ Купить участок';return `<button class="me4-landpin ${built?'developed':''}" style="left:${p.x}%;top:${p.y}%" data-mwa="lot" data-id="${p.id}" title="Участок ${p.id.toUpperCase()}">${display}</button>`;}).join('');
     const events=activeIncidents().filter(x=>x.city===world.city).map((event,i)=>`<button class="me4-emergency" style="left:${port?76:87}%;top:${port?58:68}%" data-mwa="incident" data-id="${event.id}" title="Перейти на место происшествия">!<span class="me4-emergency-label">ЧП · На место</span></button>`).join('');
     const skyline=modern?`<div class="me4-modern-tower tower-a"><i></i></div><div class="me4-modern-tower tower-b"><i></i></div><div class="me4-modern-tower tower-c"><i></i></div>`:'';
-    return `<div class="me4-artmap ${modern?'me4-future':''} ${world.year>=2050?'me4-neofuture':''}" role="group" aria-label="Интерактивная панорама ${esc(CITIES[world.city].name)}"><img src="${background}" draggable="false" alt="Детально нарисованная панорама промышленного города с редакциями, банком, мэрией, типографией, жилыми кварталами, портом и транспортом"/>${skyline}<div class="me4-art-vignette"></div>${zones}${plots}${events}<div class="me4-art-grain"></div><div class="me4-map-coordinate">${esc(CITIES[world.city].name)} / ${world.year} · НАЖМИТЕ НА ЗДАНИЕ, ЧТОБЫ ВОЙТИ</div></div>`;
+    return `<div class="me4-artmap ${modern?'me4-future':''} ${world.year>=2050?'me4-neofuture':''}" role="group" aria-label="Интерактивная панорама ${esc(CITIES[world.city].name)}"><img src="${background}" draggable="false" alt="Детально нарисованная панорама промышленного города с редакциями, банком, мэрией, типографией, жилыми кварталами, портом и транспортом"/>${skyline}<div class="me4-art-vignette"></div>${cityLife()}${zones}${plots}${events}<div class="me4-art-grain"></div><div class="me4-map-coordinate">${esc(CITIES[world.city].name)} / ${world.year} · НАЖМИТЕ НА ЗДАНИЕ, ЧТОБЫ ВОЙТИ</div></div>`;
   }
   function cityScreen(){
     finalizeConstruction();const c=CITIES[world.city],incidents=activeIncidents().filter(i=>i.city===world.city);
@@ -188,7 +255,7 @@
       <div class="mw-mapwrap me4-mapwrap">
         <div class="mw-map me4-game-map">
           ${artCity()}
-          <div class="me4-map-top"><span>● ЖИВОЙ ГОРОД</span><strong>${num(c.households)} домохозяйств</strong><span>${esc(era().title)}</span></div>
+          <div class="me4-map-top"><span>● ЖИВОЙ ГОРОД</span><strong>${num(c.households)} домохозяйств</strong><span>${esc(era().title)}</span><button type="button" class="me5-motion-control" data-mwa="motion" aria-pressed="${world.motion!==false}" title="Включить или выключить движение городского транспорта и дым">${world.motion!==false?'◉ Движение: ВКЛ':'○ Движение: ВЫКЛ'}</button></div>
           <div class="me4-minimap"><div class="me4-mini-lines"><i></i><i></i><i></i><i></i></div><span>◉ ЦЕНТР ГОРОДА</span><small>${world.city==='belford'?'РАЙОНЫ · ПРИСТАНЬ · ПРИГОРОД':'ПОРТ · ВЕРФИ · ПРИГОРОД'}</small></div>
           ${news?`<div class="me4-event-ribbon"><span class="me4-red-dot">!</span><div><b>${esc(news.title)}</b><small>${esc(news.where)}</small></div><button data-mwa="incident" data-id="${news.id}">Отправить репортёра →</button></div>`:`<div class="me4-event-ribbon peaceful"><span>✓</span><div><b>В городе спокойно</b><small>Редакция следит за ситуацией</small></div><button data-mwa="news">Журнал событий →</button></div>`}
         </div>
@@ -254,7 +321,7 @@
   function toast(text){const e=document.getElementById('toast');if(!e)return;e.textContent=text;e.className='toast show';setTimeout(()=>e.className='toast',3200);}
   function noMoney(price){toast('Недостаточно средств: требуется '+mon(price)+'. В банке можно взять кредит.');}
   function transaction(amount,desc){if(!api.transact(amount,desc)){noMoney(-amount);return false;}world.cashEvents.push({week:core().week,amount,desc});return true;}
-  function act(action,id){if(action==='city'){world.city=id;world.view='city';show();return;}
+  function act(action,id){if(action==='motion'){world.motion=!(world.motion!==false);show();return;}if(action==='city'){world.city=id;world.view='city';show();return;}
     if(action==='view'){world.view=id;show();return;}
     if(action==='interior'||action==='building'){openInterior(id);return;}
     if(action==='room'){world.room=id;show();return;}

@@ -135,3 +135,20 @@
 @media(max-width:1000px){#world-app .me4-mapwrap{display:grid;grid-template-columns:1fr}#world-app .me4-game-map{height:500px;min-height:500px}#world-app .me4-side{display:grid;grid-template-columns:210px 1fr;min-height:220px}#world-app .me4-side-hero{height:100%}#world-app .me4-side-content{display:grid;grid-template-columns:1fr 1fr;align-content:start}#world-app .me4-side-content>p,#world-app .me4-side-divider,#world-app .me4-era-note{grid-column:span 2}#world-app .me4-city{min-height:0;height:auto}#world-app .me4-side-content .me4-smallactions{grid-column:span 2}}
 @media(max-width:680px){#world-app .me4-top{padding:0 8px;gap:7px}#world-app .me4-era-player,#world-app .me4-top .mw-headstat:not(.budget){display:none}#world-app .me4-top .mw-brand{font-size:18px}#world-app .me4-titlebar h1{font-size:26px}#world-app .me4-mapwrap{min-height:0}#world-app .me4-game-map{height:345px;min-height:345px}#world-app .me4-map-top{display:none}#world-app .me4-minimap{width:95px;height:72px;bottom:66px}#world-app .me4-minimap span{font-size:7px}#world-app .me4-minimap small{display:none}#world-app .me4-event-ribbon{left:8px;right:8px}#world-app .me4-event-ribbon button{max-width:98px;font-size:9px!important}#world-app .me4-map-coordinate{display:none}#world-app .me4-landpin{font-size:7px!important;padding:4px}#world-app .me4-side{display:block}#world-app .me4-side-hero{height:160px}#world-app .me4-side-content{display:flex}#world-app .me4-side-content>*{grid-column:auto}#world-app .me4-bottom nav button{font-size:10px}}
 @media(prefers-reduced-motion:reduce){#world-app .me4-emergency{animation:none}}
+
+/* MEDIA EMPIRE 0.5 — organic city movement. GPU-light SVG motion; zero pointer interception. */
+#world-app .me5-citylife{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:visible;filter:drop-shadow(0 2px 2px rgba(13,27,25,.22))}
+#world-app .me5-citylife-smoke{opacity:.98}
+#world-app .me5-citylife-traffic{filter:drop-shadow(0 2px 2px #18252280)}
+#world-app .me5-motion-control{pointer-events:auto;cursor:pointer;border:1px solid #ab8b59;background:linear-gradient(180deg,#433929,#292a24);color:#ffe1a5;border-radius:4px;padding:6px 10px;font-size:10px;letter-spacing:.025em;font-weight:700;white-space:nowrap;transition:background .15s,border-color .15s}
+#world-app .me5-motion-control:hover,#world-app .me5-motion-control:focus-visible{background:#6a5235;border-color:#f5cc89;color:#fff4d6}
+#world-app .me5-motion-control[aria-pressed="false"]{opacity:.72;color:#c2baaa;border-color:#736c61}
+@media (max-width:680px){#world-app .me5-motion-control{position:absolute;right:7px;top:6px;padding:5px 7px;font-size:9px}#world-app .me4-map-top{display:flex;pointer-events:none;right:8px;left:8px;padding:6px 7px}#world-app .me4-map-top>span:not(:first-child),#world-app .me4-map-top>strong{display:none}}
+@media(prefers-reduced-motion:reduce){#world-app .me5-citylife{display:none}}
+
+/* Human-scale ambient life and water movement: scenery never intercepts clicks. */
+#world-app .me5-citylife-pedestrians{opacity:.82;filter:drop-shadow(0 1px 1px #0b171388)}
+#world-app .me5-citylife-river{opacity:.9}
+#world-app .me5-water{animation:me5-shimmer 12s linear infinite;pointer-events:none}
+@keyframes me5-shimmer{to{stroke-dashoffset:-240}}
+@media(prefers-reduced-motion:reduce){#world-app .me5-water{animation:none}}
