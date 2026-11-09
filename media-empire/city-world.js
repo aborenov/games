@@ -73,8 +73,9 @@
   window.ME_WORLD={modifiers,year:()=>world.year};
   const tplt=(tag,cls,text)=>`<${tag} class="${cls}">${text}</${tag}>`;
   function syncBalance(){document.querySelectorAll('[data-me-balance]').forEach(x=>x.textContent=mon(core().cash));}
-  function header(){const c=core();return `<header class="mw-top"><div class="mw-brand">MEDIA <b>EMPIRE</b><small>ЖИВОЙ ГОРОД · ПРОТОТИП 0.3</small></div><div class="mw-barline"></div><div class="mw-location"><strong>${esc(CITIES[world.city].name)} · ${world.year}</strong><small>${esc(era().title.toUpperCase())}</small></div><div class="mw-headstat budget"><small>Касса</small><b data-me-balance>${mon(c.cash)}</b></div><div class="mw-headstat"><small>Кредит</small><b>${mon(c.loan)}</b></div><div class="mw-headstat"><small>Доверие</small><b>${c.trust}/100</b></div><span class="mw-spacer"></span><button class="mw-iconbtn" data-mwa="save">Сохранить</button><button class="mw-iconbtn ${activeIncidents().length?'warn':''}" data-mwa="news">${activeIncidents().length?'● ':''}События ${activeIncidents().length}</button></header>`;}
-  function bottom(){return `<footer class="mw-bottom"><nav><button class="${world.view==='city'?'active':''}" data-mwa="view" data-id="city">Город</button><button class="${world.view==='interior'&&world.selected==='newsroom'?'active':''}" data-mwa="interior" data-id="newsroom">Редакция</button><button class="${world.view==='latest'?'active':''}" data-mwa="view" data-id="latest">Последний номер</button><button class="${world.view==='property'?'active':''}" data-mwa="view" data-id="property">Недвижимость</button><button data-mwa="desk">Верстать номер</button></nav><div class="mw-bottom-summary"><b>№ ${String(Math.min(core().week,12)).padStart(3,'0')} · Городской вестник</b>${core().history.length} выпусков · ${num(core().readers)} читателей</div></footer>`;}
+  function header(){const s=core();return `<header class="mw-top me4-top"><div class="mw-brand">MEDIA <b>EMPIRE</b><small>ЖИВАЯ ИСТОРИЯ · ГОРОД И МЕДИА</small></div><div class="mw-barline"></div><div class="mw-location"><strong>⌖ ${esc(CITIES[world.city].name)}</strong><small>${world.year} · ${esc(era().title.toUpperCase())}</small></div><div class="me4-era-player"><button data-mwa="view" data-id="city">◀◀</button><span>◉ ${world.year}</span><button data-mwa="view" data-id="city">▶</button></div><div class="mw-headstat budget"><small>КАССА</small><b data-me-balance>${mon(s.cash)}</b></div><div class="mw-headstat"><small>ДОЛГ</small><b>${mon(s.loan)}</b></div><div class="mw-headstat"><small>ДОВЕРИЕ</small><b>${s.trust}/100</b></div><span class="mw-spacer"></span><button class="mw-iconbtn" data-mwa="save">Сохранить</button><button class="mw-iconbtn ${activeIncidents().length?'warn':''}" data-mwa="news">${activeIncidents().length?'! ':''}События ${activeIncidents().length}</button></header>`;}
+
+  function bottom(){return `<footer class="mw-bottom me4-bottom"><nav><button class="${world.view==='city'?'active':''}" data-mwa="view" data-id="city">Город</button><button class="${world.view==='interior'&&world.selected==='newsroom'?'active':''}" data-mwa="interior" data-id="newsroom">Редакция</button><button class="${world.view==='latest'?'active':''}" data-mwa="view" data-id="latest">Последний номер</button><button class="${world.view==='property'?'active':''}" data-mwa="view" data-id="property">Недвижимость</button><button data-mwa="desk">Верстать номер</button></nav><div class="mw-bottom-summary"><b>№ ${String(Math.min(core().week,12)).padStart(3,'0')} · Городской вестник</b>${core().history.length} выпусков · ${num(core().readers)} читателей</div></footer>`;}
   function activeIncidents(){return INCIDENTS.filter(i=>i.week<=core().week&&(!world.caseNotes[i.id]||!world.caseNotes[i.id].published));}
   function xSvg(p){return p.map(n=>Math.round(n)).join(',');}
   function coords(pts){return pts.map(xSvg).join(' ');}
@@ -138,9 +139,75 @@
     return `<svg viewBox="0 0 1320 820" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Игровой город ${esc(CITIES[world.city].name)}, жилые кварталы, редакции, банк, мэрия и участки"><defs><linearGradient id="mw-land" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${colors[0]}"/><stop offset=".55" stop-color="${colors[1]}"/><stop offset="1" stop-color="${colors[2]}"/></linearGradient><linearGradient id="mw-water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#88a4a0"/><stop offset="1" stop-color="#3c6670"/></linearGradient><pattern id="mw-pavers" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M0 30L30 0" stroke="#e5dabc" stroke-opacity=".065"/><circle cx="15" cy="15" r="1" fill="#f3e8c8" opacity=".16"/></pattern></defs><rect width="1320" height="820" fill="url(#mw-land)"/><rect width="1320" height="820" fill="url(#mw-pavers)"/><path d="${bounds}" fill="url(#mw-water)" stroke="#c0c9a4" stroke-width="17"/>${roads}${train}<g opacity=".72">${trees()}</g>${cars()}${people}${elems}${incidents}<path d="M5 810h1310" stroke="#1f342f" stroke-width="10"/></svg>`;
   }
   function buildingInfo(id){if(id.startsWith('lot-'))return null;const b=BLD[id];return b||{name:'Городской объект',type:'public',city:world.city};}
-  function cityScreen(){finalizeConstruction();const c=CITIES[world.city];const incidents=activeIncidents().filter(i=>i.city===world.city),builds=Object.entries(world.lots).filter(([id,x])=>LOTS[id]?.city===world.city&&x.status==='complete').length;
-    return `<div class="mw-city"><div class="mw-titlebar"><div><div class="mw-kicker">ИГРОВОЙ МИР · РАЙОНЫ · ВЛАДЕНИЯ · ЖИЗНЬ ГОРОДА</div><h1>${esc(c.name)} <span style="color:#e4bf88">${world.year}</span></h1><p>${esc(c.desc)} · ${esc(era().transport)}</p></div><div class="mw-selectline"><button class="${world.city==='belford'?'active':''}" data-mwa="city" data-id="belford">Белфорд</button><button class="${world.city==='porthaven'?'active':''}" data-mwa="city" data-id="porthaven">Порт-Хейвен</button><select data-mws="year" aria-label="Эпоха">${YEARS.map(y=>`<option value="${y}" ${world.year===y?'selected':''}>${y} · ${esc(ERAS[y].title)}</option>`).join('')}</select></div></div><div class="mw-mapwrap"><div class="mw-map">${mapSvg()}<div class="mw-mapstamp">ГЕНЕРИРУЕМЫЙ ГОРОД · ${esc(c.subtitle)}<b>${esc(c.name)}</b></div></div><aside class="mw-side"><div class="mw-side-inner"><div class="mw-side-eyebrow">ГОРОДСКАЯ КАРТА · ОБЪЕКТЫ</div><h2>Улицы, где растёт империя</h2><p>Нажимайте на здания, чтобы войти внутрь. У жителей есть интересы, у конкурентов — собственные редакции. Участки можно купить и застроить.</p><div class="mw-sidefacts"><div>Домохозяйств <strong>${num(c.households)}</strong></div><div>Своих объектов <strong>${builds+(world.city==='belford'?1:0)}</strong></div><div>Доступно участков <strong>${Object.entries(LOTS).filter(([id,l])=>l.city===world.city&&!world.lots[id]).length}</strong></div><div>Эпоха <strong>${esc(era().title)}</strong></div><div>Происшествия <strong style="color:${incidents.length?'#f6ad91':'#a4c4a5'}">${incidents.length}</strong></div></div></div><div class="mw-side-actions">${incidents.length?`<button class="mw-button primary" data-mwa="incident" data-id="${incidents[0].id}">🚨 Перейти к месту ЧП</button>`:''}<button class="mw-button" data-mwa="interior" data-id="newsroom">Войти в нашу редакцию</button><button class="mw-button" data-mwa="interior" data-id="${world.city==='belford'?'bank':'portbank'}">🏦 Войти в банк</button><button class="mw-button" data-mwa="interior" data-id="${world.city==='belford'?'hall':'porthall'}">🏛 Войти в мэрию</button><button class="mw-button" data-mwa="view" data-id="property">Купить землю / построить</button></div></aside></div><div class="mw-infobar"><span><i></i> Ваша компания</span><span><i class="other"></i> Другие участники</span><span><i class="house"></i> Жилые дома и город</span><span class="right">${esc(era().house)} · смена эпох — режим теста города</span></div></div>`;
+  // Image-backed city art is a *game scene*, not a screenshot as a substitute for the game.
+  // The interactive click zones below are separate DOM elements connected to real gameplay actions.
+  const MAP_HOTSPOTS={
+    belford:[
+      {id:'newsroom',name:'Наша редакция',icon:'✒',x:45.0,y:30.0,w:29.0,h:31.0,kind:'ours'},
+      {id:'bank',name:'Городской банк',icon:'₽',x:15.0,y:22.0,w:20.8,h:30.0,kind:'public'},
+      {id:'hall',name:'Мэрия Белфорда',icon:'♜',x:34.0,y:6.0,w:25.0,h:28.0,kind:'public'},
+      {id:'chrono',name:'Редакция конкурента',icon:'▥',x:9.0,y:48.0,w:25.0,h:26.0,kind:'rival'},
+      {id:'press',name:'Типография',icon:'⚙',x:75.0,y:25.0,w:25.0,h:32.0,kind:'business'},
+      {id:'homeA',name:'Жилой квартал',icon:'⌂',x:1.5,y:68.0,w:35.0,h:29.5,kind:'residential'},
+      {id:'homeB',name:'Доходные дома',icon:'⌂',x:5.0,y:12.0,w:14.0,h:21.0,kind:'residential'},
+      {id:'homeC',name:'Семьи у сквера',icon:'⌂',x:69.0,y:75.0,w:18.0,h:23.0,kind:'residential'},
+      {id:'market',name:'Центральный рынок',icon:'⌂',x:56.0,y:65.0,w:22.0,h:20.0,kind:'public'},
+      {id:'listok',name:'«Народный листок»',icon:'▥',x:0.5,y:46.0,w:13.0,h:18.0,kind:'rival'},
+      {id:'courier',name:'«Деловой курьер»',icon:'▥',x:77.0,y:52.0,w:14.0,h:18.0,kind:'rival'},
+    ],
+    porthaven:[
+      {id:'portnews',name:'Пристанские новости',icon:'▥',x:74.0,y:45.0,w:24.0,h:24.0,kind:'rival'},
+      {id:'portbank',name:'Портовый банк',icon:'₽',x:1.0,y:30.0,w:23.0,h:21.0,kind:'public'},
+      {id:'porthall',name:'Мэрия Порт-Хейвена',icon:'♜',x:53.0,y:27.0,w:27.0,h:29.0,kind:'public'},
+      {id:'shipyard',name:'Портовые верфи',icon:'⚙',x:7.0,y:8.0,w:30.0,h:20.0,kind:'business'},
+      {id:'phouseA',name:'Дома моряков',icon:'⌂',x:8.0,y:78.0,w:34.0,h:22.0,kind:'residential'},
+      {id:'phouseB',name:'Торговые дома',icon:'⌂',x:43.0,y:62.0,w:20.0,h:24.0,kind:'residential'},
+      {id:'phouseC',name:'Семейные улицы',icon:'⌂',x:8.0,y:51.0,w:23.0,h:20.0,kind:'residential'},
+    ]
+  };
+  const MAP_PINS={belford:[{id:'b1',x:17,y:56},{id:'b2',x:82,y:80},{id:'b3',x:62,y:81}],porthaven:[{id:'p1',x:40,y:71},{id:'p2',x:91,y:73}]};
+  function artCity(){
+    const port=world.city==='porthaven';const modern=world.year>=1985;
+    const background=port?'assets/porthaven-1900.webp':'assets/belford-1900.webp';
+    const zones=MAP_HOTSPOTS[world.city].map(z=>`<button type="button" class="me4-zone ${z.kind==='ours'?'is-ours':''}" style="left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%" data-mwa="building" data-id="${z.id}" aria-label="Открыть объект: ${esc(z.name)}" title="Открыть: ${esc(z.name)}"><span class="me4-zonehint">${esc(z.icon)} ${esc(z.name)} · войти</span></button>`).join('');
+    const plots=MAP_PINS[world.city].map(p=>{const r=world.lots[p.id],built=r&&r.status==='complete',construction=r&&r.status==='building';const display=built?'✓ Свой объект':construction?'◷ Стройка':r?'⚒ Наш участок':'✦ Купить участок';return `<button class="me4-landpin ${built?'developed':''}" style="left:${p.x}%;top:${p.y}%" data-mwa="lot" data-id="${p.id}" title="Участок ${p.id.toUpperCase()}">${display}</button>`;}).join('');
+    const events=activeIncidents().filter(x=>x.city===world.city).map((event,i)=>`<button class="me4-emergency" style="left:${port?76:87}%;top:${port?58:68}%" data-mwa="incident" data-id="${event.id}" title="Перейти на место происшествия">!<span class="me4-emergency-label">ЧП · На место</span></button>`).join('');
+    const skyline=modern?`<div class="me4-modern-tower tower-a"><i></i></div><div class="me4-modern-tower tower-b"><i></i></div><div class="me4-modern-tower tower-c"><i></i></div>`:'';
+    return `<div class="me4-artmap ${modern?'me4-future':''} ${world.year>=2050?'me4-neofuture':''}" role="group" aria-label="Интерактивная панорама ${esc(CITIES[world.city].name)}"><img src="${background}" draggable="false" alt="Детально нарисованная панорама промышленного города с редакциями, банком, мэрией, типографией, жилыми кварталами, портом и транспортом"/>${skyline}<div class="me4-art-vignette"></div>${zones}${plots}${events}<div class="me4-art-grain"></div><div class="me4-map-coordinate">${esc(CITIES[world.city].name)} / ${world.year} · НАЖМИТЕ НА ЗДАНИЕ, ЧТОБЫ ВОЙТИ</div></div>`;
   }
+  function cityScreen(){
+    finalizeConstruction();const c=CITIES[world.city],incidents=activeIncidents().filter(i=>i.city===world.city);
+    const holdings=Object.entries(world.lots).filter(([id,x])=>LOTS[id]?.city===world.city&&x.status==='complete').length+(world.city==='belford'?1:0);
+    const news=incidents.length?incidents[0]:null;
+    const last=core().history.at(-1);
+    return `<div class="mw-city me4-city">
+      <div class="mw-titlebar me4-titlebar">
+        <div><div class="mw-kicker">ИГРОВОЙ МИР / СТРАТЕГИЯ / РЕДАКЦИИ / ЖИТЕЛИ</div><h1>${esc(c.name)} <span>${world.year}</span></h1><p>${esc(c.desc)} · ${esc(era().transport)}</p></div>
+        <div class="mw-selectline me4-selectline"><button class="${world.city==='belford'?'active':''}" data-mwa="city" data-id="belford">◉ Белфорд</button><button class="${world.city==='porthaven'?'active':''}" data-mwa="city" data-id="porthaven">⚓ Порт-Хейвен</button><select data-mws="year" aria-label="Эпоха">${YEARS.map(y=>`<option value="${y}" ${world.year===y?'selected':''}>${y} · ${esc(ERAS[y].title)}</option>`).join('')}</select></div>
+      </div>
+      <div class="mw-mapwrap me4-mapwrap">
+        <div class="mw-map me4-game-map">
+          ${artCity()}
+          <div class="me4-map-top"><span>● ЖИВОЙ ГОРОД</span><strong>${num(c.households)} домохозяйств</strong><span>${esc(era().title)}</span></div>
+          <div class="me4-minimap"><div class="me4-mini-lines"><i></i><i></i><i></i><i></i></div><span>◉ ЦЕНТР ГОРОДА</span><small>${world.city==='belford'?'РАЙОНЫ · ПРИСТАНЬ · ПРИГОРОД':'ПОРТ · ВЕРФИ · ПРИГОРОД'}</small></div>
+          ${news?`<div class="me4-event-ribbon"><span class="me4-red-dot">!</span><div><b>${esc(news.title)}</b><small>${esc(news.where)}</small></div><button data-mwa="incident" data-id="${news.id}">Отправить репортёра →</button></div>`:`<div class="me4-event-ribbon peaceful"><span>✓</span><div><b>В городе спокойно</b><small>Редакция следит за ситуацией</small></div><button data-mwa="news">Журнал событий →</button></div>`}
+        </div>
+        <aside class="mw-side me4-side">
+          <div class="me4-side-hero"><img src="assets/newsroom-1900.webp" alt="Редакционный зал журналистов начала XX века"/><div class="me4-side-caption"><span>ВАША КОМПАНИЯ · ОСНОВАНА В 1900</span><h2>«Городской вестник»</h2></div></div>
+          <div class="me4-side-content"><p>Начните с редакции. Внутри — отделы, сотрудники, планы выпусков и управление газетой.</p>
+            <button class="mw-button primary" data-mwa="building" data-id="newsroom">✒ Войти в редакцию <span>→</span></button>
+            <button class="mw-button" data-mwa="latest">▤ Последний опубликованный номер <span>→</span></button>
+            <div class="me4-side-divider"></div><div class="me4-side-kpi"><span>Собственные здания</span><strong>${holdings}</strong></div><div class="me4-side-kpi"><span>Свободных участков</span><strong>${Object.entries(LOTS).filter(([id,l])=>l.city===world.city&&!world.lots[id]).length}</strong></div><div class="me4-side-kpi"><span>Работающие конкуренты</span><strong>${Object.values(BLD).filter(b=>b.city===world.city&&b.type==='rival').length}</strong></div>
+            <div class="me4-side-divider"></div>
+            <div class="me4-smallactions"><button data-mwa="interior" data-id="${world.city==='belford'?'bank':'portbank'}">Банк</button><button data-mwa="interior" data-id="${world.city==='belford'?'hall':'porthall'}">Мэрия</button><button data-mwa="property">Земля / стройка</button></div>
+            <div class="me4-era-note">${world.year===1900?'Историческая визуализация 1900 года':`Переключение на ${world.year}: тест будущих эпох. Полноценная перестройка архитектуры в разработке.`}</div>
+          </div>
+        </aside>
+      </div>
+      <div class="mw-infobar me4-infobar"><span><i></i> Наши здания</span><span><i class="other"></i> Конкуренты</span><span><i class="house"></i> Жилые дома</span><span>✦ Свободные участки</span><span class="right">Нажмите на здание на карте: его интерьер интерактивен</span></div>
+    </div>`;
+  }
+
   function floorsArt(id){const b=BLD[id]||{};const year=world.year,isNews=id==='newsroom'||id==='press',bank=id==='bank'||id==='portbank',hall=id==='hall'||id==='porthall',rival=b.type==='rival',house=b.type==='residential';
     const rooms=house?['Прихожая','Кухня','Гостиная','Комната']:bank?['Касса','Кредитный отдел','Кабинет управляющего','Архив']:hall?['Зал совета','Кабинет мэра','Земельный отдел','Архив решений']:isNews?['Редакционный зал','Кабинет главреда','Верстка','Фотоотдел']:rival?['Приёмная','Репортёры','Типографский стол','Дирекция']:['Основной цех','Администрация','Клиенты','Склад'];
     const chosen=world.room||'0';

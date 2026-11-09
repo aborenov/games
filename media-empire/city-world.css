@@ -32,3 +32,106 @@
 @media(max-width:670px){.mw-top{height:56px;min-height:56px;padding:0 10px;gap:8px}.mw-brand{font-size:16px}.mw-headstat.budget b{font-size:12px}.mw-iconbtn{padding:8px;font-size:10px!important}.mw-city,.mw-scene{padding:14px 10px;gap:10px}.mw-map{height:320px;min-height:320px}.mw-map svg{min-height:320px}.mw-titlebar h1,.mw-scenehead h1{font-size:27px}.mw-selectline{justify-content:flex-start}.mw-selectline button{font-size:10px;padding:8px}.mw-bottom{min-height:53px;height:53px;padding:0 5px}.mw-bottom nav{width:100%;justify-content:space-between}.mw-bottom nav button{padding:0 7px;font-size:9px}.mw-households{grid-template-columns:1fr}.mw-mapstamp{font-size:8px;padding:6px}.mw-mapstamp b{font-size:15px}.mw-interior-grid,.mw-incident-grid{gap:9px}.mw-inside-art,.mw-incident-art{min-height:300px}.mw-scenehead{align-items:flex-start}.mw-back{padding:8px;font-size:10px!important}}
 
 .mw-side-actions{gap:6px;padding:10px 14px}.mw-side-actions .mw-button{padding:9px 11px}
+
+
+/* MEDIA EMPIRE 0.4 — original historic city concept rendered as interactive playable geography. */
+:root{--me4-panel:#111a1b;--me4-brown:#382c24;--me4-gold:#e4bd83;--me4-gold-light:#f8dcaa;--me4-ivory:#ede1cb}
+#world-app{background:#101414;color:var(--me4-ivory);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+#world-app .me4-top{min-height:65px;height:65px;padding:0 22px;gap:18px;background:linear-gradient(180deg,#252422 0%,#161c1c 80%,#111719 100%);border-bottom:1px solid #826f54;box-shadow:0 4px 22px #0009}
+#world-app .me4-top .mw-brand{font-family:Georgia,serif;font-size:26px;letter-spacing:-.038em;color:#f5e8d1;font-weight:700;text-shadow:0 1px #000}
+#world-app .me4-top .mw-brand b{color:var(--me4-gold)}
+#world-app .me4-top .mw-brand small{font-family:system-ui,sans-serif;color:#a6a193;font-size:8px;letter-spacing:.24em;margin-top:-2px}
+#world-app .me4-top .mw-barline{background:#886d49}
+#world-app .me4-top .mw-location{min-width:140px}
+#world-app .me4-top .mw-location strong{font-family:Georgia,serif;font-size:17px;color:#ffe5c0}
+#world-app .me4-top .mw-location small{font-size:9px;color:#baa98c}
+#world-app .me4-top .mw-headstat{display:flex;flex-direction:column;align-items:flex-start;gap:1px;border-left:1px solid #50483a;padding-left:14px}
+#world-app .me4-top .mw-headstat b{font-size:16px;color:#f2e8d6}
+#world-app .me4-top .mw-headstat.budget b{color:#eed18e}
+#world-app .me4-top .mw-headstat small{color:#b4ad9d;font-size:9px}
+#world-app .me4-top .mw-iconbtn{border:1px solid #75644a;color:#e8cfaa;background:#2b2b28;border-radius:5px;padding:8px 12px}
+#world-app .me4-top .mw-iconbtn.warn{background:linear-gradient(180deg,#8c4134,#50251e);color:white;border-color:#d68c6c}
+#world-app .me4-era-player{display:flex;align-items:center;border:1px solid #665944;border-radius:5px;overflow:hidden;background:#151a18;font-weight:700;color:#eed6a9;white-space:nowrap}
+#world-app .me4-era-player button{border:0;background:transparent;color:#d4b989;padding:7px 9px}
+#world-app .me4-era-player span{padding:0 10px}
+#world-app .mw-stage{background:radial-gradient(ellipse at 38% 30%,#42473c 0%,#202b2a 58%,#111a1b 100%)}
+#world-app .me4-city{gap:8px;padding:12px 16px 11px;min-height:570px}
+#world-app .me4-titlebar{align-items:center;min-height:65px}
+#world-app .me4-titlebar .mw-kicker{font-size:9px;letter-spacing:.17em;color:#c8a36c}
+#world-app .me4-titlebar h1{font-family:Georgia,serif;font-size:32px;color:#f9e8cf;margin:2px 0 0}
+#world-app .me4-titlebar h1 span{color:#e1bf87;font-size:26px;font-style:italic}
+#world-app .me4-titlebar p{color:#c6bdac;font-size:11px;margin:2px 0 0}
+#world-app .me4-selectline button,#world-app .me4-selectline select{background:#292b26;color:#e9d7bc;border:1px solid #73634b;padding:10px 13px;border-radius:4px;box-shadow:inset 0 1px #ffffff08}
+#world-app .me4-selectline button.active{background:linear-gradient(180deg,#82623b,#4c3b2a);border-color:#dfb77b;color:#fff1ce}
+#world-app .me4-mapwrap{grid-template-columns:minmax(0,1fr) 276px;gap:10px;min-height:390px;max-height:none}
+#world-app .me4-game-map{min-height:405px;border:1px solid #8c714e;background:#293530;box-shadow:0 7px 23px #000b;isolation:isolate}
+#world-app .me4-game-map::before{box-shadow:inset 0 0 26px #000a,0 0 0 1px #181c1880;z-index:4}
+#world-app .me4-artmap{position:absolute;inset:0;overflow:hidden;background:#253431}
+#world-app .me4-artmap>img{display:block;position:absolute;width:100%;height:100%;object-fit:fill;inset:0;filter:saturate(.93) contrast(1.04)}
+#world-app .me4-art-vignette{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#070d0a2a 0%,transparent 15%,transparent 55%,#080b0b77 100%)}
+#world-app .me4-art-grain{position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,#00000006 3px);opacity:.1}
+#world-app .me4-zone{position:absolute;display:block;z-index:5;background:transparent!important;border:1px solid transparent;border-radius:6px;cursor:pointer;padding:0;overflow:visible;transition:box-shadow .17s,border-color .17s,background .17s}
+#world-app .me4-zone:hover,#world-app .me4-zone:focus-visible{border-color:#ffe3a7!important;box-shadow:inset 0 0 0 1px #ffde9488,0 0 24px #ffb153b3,0 0 60px #e6ac4f33;background:#ffc75d12!important}
+#world-app .me4-zone.is-ours:hover{border-width:2px}
+#world-app .me4-zonehint{position:absolute;z-index:7;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(5px);font-size:11px;white-space:nowrap;line-height:1.2;background:#171b1ae8;border:1px solid #d3a86c;color:#ffdfab;border-radius:4px;padding:8px 11px;opacity:0;pointer-events:none;transition:opacity .17s,transform .17s;box-shadow:0 5px 20px #000a;font-weight:700}
+#world-app .me4-zone:hover .me4-zonehint,#world-app .me4-zone:focus-visible .me4-zonehint{opacity:1;transform:translateX(-50%) translateY(0)}
+#world-app .me4-landpin{position:absolute;z-index:7;transform:translate(-50%,-50%);border:1px solid #ffcf85;border-radius:18px;padding:5px 9px;color:#221e1b;font-size:10px!important;font-weight:750;background:linear-gradient(#ffe19a,#c79d5f);box-shadow:0 3px 12px #000b;white-space:nowrap;cursor:pointer}
+#world-app .me4-landpin.developed{background:#8cb9a0;color:#132b23;border-color:#c8ffca}
+#world-app .me4-landpin:hover{filter:brightness(1.2);transform:translate(-50%,-50%) scale(1.08)}
+#world-app .me4-emergency{position:absolute;z-index:10;width:35px;height:35px;transform:translate(-50%,-50%);border-radius:50%;background:#9a2f22;color:white;border:2px solid #ffcc9a;box-shadow:0 0 0 6px #ff6f4133,0 0 18px #ff7557;animation:me4incident 1.7s infinite;font-weight:1000;font-size:21px!important;display:grid;place-items:center}
+#world-app .me4-emergency-label{position:absolute;left:40px;top:2px;background:#6a3025f2;border:1px solid #e68e66;padding:6px 9px;color:#fff;white-space:nowrap;font-size:10px}
+@keyframes me4incident{0%,100%{box-shadow:0 0 0 5px #ff6f4133,0 0 16px #ff7557}50%{box-shadow:0 0 0 12px #ff6f4108,0 0 26px #ff7557}}
+#world-app .me4-map-top{position:absolute;left:15px;top:13px;z-index:8;background:#15201ed9;color:#f0dfc2;border:1px solid #dab58384;display:flex;align-items:center;gap:9px;box-shadow:0 4px 17px #0005;padding:7px 11px;backdrop-filter:blur(7px);font-size:9px;letter-spacing:.03em;pointer-events:none}
+#world-app .me4-map-top span:first-child{color:#f4c78d;font-weight:800}
+#world-app .me4-map-top strong{font-variant-numeric:tabular-nums}
+#world-app .me4-minimap{position:absolute;z-index:6;bottom:54px;left:12px;width:160px;height:111px;border:2px solid #b49869;box-shadow:0 0 0 1px #000,0 10px 23px #000a;background:radial-gradient(circle at 30% 40%,#6a7d60,#263d45);border-radius:4px;overflow:hidden;pointer-events:none}
+#world-app .me4-mini-lines{position:absolute;inset:0;opacity:.75;background:linear-gradient(138deg,#52674c,#2c5358 49%,#303a2d 51%)}
+#world-app .me4-mini-lines i{position:absolute;width:160%;height:4px;background:#c7ad77;transform:rotate(22deg);top:20%;left:-20%;box-shadow:0 28px #ccbd8a,0 50px #8f8a63}
+#world-app .me4-mini-lines i:nth-child(2){transform:rotate(69deg);left:0;top:40%}
+#world-app .me4-mini-lines i:nth-child(3){transform:rotate(-44deg);top:65%}
+#world-app .me4-mini-lines i:nth-child(4){transform:rotate(-8deg);top:12%}
+#world-app .me4-minimap span{position:absolute;left:8px;bottom:24px;color:#f8eaca;font-size:10px;font-weight:900;text-shadow:1px 1px 3px #000}
+#world-app .me4-minimap small{position:absolute;left:8px;bottom:9px;color:#fff9d5;font-size:7px;letter-spacing:.04em;text-shadow:1px 1px 3px #000}
+#world-app .me4-map-coordinate{position:absolute;bottom:14px;left:13px;font-size:9px;letter-spacing:.12em;color:#f9e7c2;background:#111b19d9;padding:6px 11px;border:1px solid #9f8b68;pointer-events:none;z-index:6}
+#world-app .me4-event-ribbon{position:absolute;z-index:9;bottom:10px;right:10px;left:190px;min-height:59px;background:linear-gradient(90deg,#1b1f1edc,#28231cdd);border:1px solid #ad8358;backdrop-filter:blur(8px);display:flex;align-items:center;gap:12px;padding:10px 12px;box-shadow:0 8px 24px #0008}
+#world-app .me4-event-ribbon .me4-red-dot{background:#9c3d2d;border-radius:50%;color:#fff4eb;font-weight:800;display:grid;place-items:center;width:29px;height:29px;font-size:17px;border:2px solid #e7a78b;flex:none}
+#world-app .me4-event-ribbon div{flex:1;min-width:0}
+#world-app .me4-event-ribbon b{color:#f4d4ad;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+#world-app .me4-event-ribbon small{display:block;color:#b8b6ab;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+#world-app .me4-event-ribbon button{border:1px solid #b78c64;background:#684a2c;color:#fff1d1;border-radius:4px;padding:9px 12px;font-size:10px!important;white-space:nowrap;font-weight:700}
+#world-app .me4-event-ribbon button:hover{background:#a47845}
+#world-app .me4-side{min-width:0;border:1px solid #907047;background:linear-gradient(150deg,#232625,#111918 80%);box-shadow:0 10px 25px #0006}
+#world-app .me4-side-hero{height:177px;position:relative;overflow:hidden;border-bottom:1px solid #8e7355}
+#world-app .me4-side-hero img{position:absolute;width:100%;height:100%;object-fit:cover;opacity:.83;filter:saturate(.85)}
+#world-app .me4-side-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#121b1710,#151715ee)}
+#world-app .me4-side-caption{position:absolute;z-index:2;left:15px;right:12px;bottom:10px}
+#world-app .me4-side-caption span{font-size:9px;color:#c7ae85;letter-spacing:.1em;font-weight:800}
+#world-app .me4-side-caption h2{font:normal 25px/1.03 Georgia,serif;color:#fff0d6;margin:4px 0 0;text-shadow:1px 2px 8px #000}
+#world-app .me4-side-content{padding:13px 14px;display:flex;flex-direction:column;gap:7px;overflow:auto;flex:1}
+#world-app .me4-side-content p{font-size:10px;line-height:1.5;color:#b9b7ad;margin-bottom:3px}
+#world-app .me4-side-content .mw-button{width:100%;background:#2a302a;border:1px solid #746c55;min-height:37px;padding:9px 10px;color:#e5d6b8;font-size:11px!important;font-weight:750;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#world-app .me4-side-content .mw-button.primary{background:linear-gradient(180deg,#bf8e50,#805a33);color:#1d1a14;border-color:#e8bd7c}
+#world-app .me4-side-divider{height:1px;background:#5d503a;margin:5px 0}
+#world-app .me4-side-kpi{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff15;padding:4px 0;color:#adaf9f;font-size:10px;gap:8px}
+#world-app .me4-side-kpi strong{font-size:13px;color:#efc58e}
+#world-app .me4-smallactions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#world-app .me4-smallactions button{padding:8px;background:#30332e;color:#dfd6bf;border:1px solid #625c47;font-size:10px;min-height:33px}
+#world-app .me4-smallactions button:last-child{grid-column:span 2}
+#world-app .me4-smallactions button:hover{background:#484034;border-color:#bc915a}
+#world-app .me4-era-note{color:#ac9f83;font-size:9px;line-height:1.4;margin-top:2px}
+#world-app .me4-infobar{padding:4px 1px;color:#c3b6a1;font-size:9px}
+#world-app .me4-infobar i{background:#dda55f}#world-app .me4-infobar i.other{background:#9fc5ae}#world-app .me4-infobar i.house{background:#adbac6}
+#world-app .me4-bottom{background:linear-gradient(180deg,#2b2926,#151b1b);border-top:1px solid #90764e;min-height:60px;height:60px}
+#world-app .me4-bottom nav button{color:#c0b6a8;font-family:Georgia,serif;font-weight:700;font-size:12px}
+#world-app .me4-bottom nav button.active,#world-app .me4-bottom nav button:hover{color:#ffe2ad;border-top-color:#ecbc78;background:#e1b27815}
+#world-app .me4-bottom .mw-bottom-summary b{color:#e8c186}
+#world-app .me4-modern-tower{position:absolute;z-index:3;bottom:32%;width:6%;height:43%;background:linear-gradient(100deg,#315b6e,#5d8897 25%,#254455 48%,#608f9f 70%,#1e3e50);border:2px solid #1c373e;transform:skewY(-5deg);box-shadow:18px 8px 22px #0005;opacity:.91;pointer-events:none;clip-path:polygon(3% 11%,77% 0,100% 10%,99% 100%,0 100%)}
+#world-app .me4-modern-tower i{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 13px,#9bcbc53d 14px,#1a344423 16px),repeating-linear-gradient(90deg,transparent 0 13px,#091c274d 14px,#9cbdca25 15px)}
+#world-app .tower-a{left:11%;height:36%;bottom:40%}#world-app .tower-b{left:78%;height:53%;bottom:42%}#world-app .tower-c{left:65%;height:29%;bottom:49%}
+#world-app .me4-future img{filter:saturate(.82) hue-rotate(5deg) brightness(.98)}
+#world-app .me4-neofuture img{filter:saturate(.77) hue-rotate(18deg) brightness(.92)}
+#world-app .me4-neofuture .me4-modern-tower{background:linear-gradient(90deg,#365d76,#80afb4 50%,#336872)}
+@media(max-width:1400px){#world-app .me4-top .mw-headstat:not(.budget){display:none}#world-app .me4-mapwrap{grid-template-columns:minmax(0,1fr) 255px}#world-app .me4-side-hero{height:150px}}
+@media(max-width:1000px){#world-app .me4-mapwrap{display:grid;grid-template-columns:1fr}#world-app .me4-game-map{height:500px;min-height:500px}#world-app .me4-side{display:grid;grid-template-columns:210px 1fr;min-height:220px}#world-app .me4-side-hero{height:100%}#world-app .me4-side-content{display:grid;grid-template-columns:1fr 1fr;align-content:start}#world-app .me4-side-content>p,#world-app .me4-side-divider,#world-app .me4-era-note{grid-column:span 2}#world-app .me4-city{min-height:0;height:auto}#world-app .me4-side-content .me4-smallactions{grid-column:span 2}}
+@media(max-width:680px){#world-app .me4-top{padding:0 8px;gap:7px}#world-app .me4-era-player,#world-app .me4-top .mw-headstat:not(.budget){display:none}#world-app .me4-top .mw-brand{font-size:18px}#world-app .me4-titlebar h1{font-size:26px}#world-app .me4-mapwrap{min-height:0}#world-app .me4-game-map{height:345px;min-height:345px}#world-app .me4-map-top{display:none}#world-app .me4-minimap{width:95px;height:72px;bottom:66px}#world-app .me4-minimap span{font-size:7px}#world-app .me4-minimap small{display:none}#world-app .me4-event-ribbon{left:8px;right:8px}#world-app .me4-event-ribbon button{max-width:98px;font-size:9px!important}#world-app .me4-map-coordinate{display:none}#world-app .me4-landpin{font-size:7px!important;padding:4px}#world-app .me4-side{display:block}#world-app .me4-side-hero{height:160px}#world-app .me4-side-content{display:flex}#world-app .me4-side-content>*{grid-column:auto}#world-app .me4-bottom nav button{font-size:10px}}
+@media(prefers-reduced-motion:reduce){#world-app .me4-emergency{animation:none}}
