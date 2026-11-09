@@ -1,4 +1,4 @@
-/* MEDIA EMPIRE 0.6: cinematic city, objective-based campaign, persistent property and interactive camera. */
+/* MEDIA EMPIRE 0.7: cinematic city, objective-based campaign, persistent property and interactive camera. */
 (() => {
   'use strict';
   const api=window.ME_BRIDGE;
@@ -125,9 +125,48 @@
   window.ME_WORLD={modifiers,year:()=>world.year};
   const tplt=(tag,cls,text)=>`<${tag} class="${cls}">${text}</${tag}>`;
   function syncBalance(){document.querySelectorAll('[data-me-balance]').forEach(x=>x.textContent=mon(core().cash));}
-  function header(){const s=core();return `<header class="mw-top me4-top"><div class="mw-brand">MEDIA <b>EMPIRE</b><small>ЖИВАЯ ИСТОРИЯ · ГОРОД И МЕДИА</small></div><div class="mw-barline"></div><div class="mw-location"><strong>⌖ ${esc(CITIES[world.city].name)}</strong><small>${world.year} · ${esc(era().title.toUpperCase())}</small></div><button class="me6-chapter-control" data-mwa="missions" title="Открыть задачи главы"><span>ГЛАВА I · ГАЗЕТА</span><strong>НЕДЕЛЯ ${Math.min(s.week,12)} / 12</strong></button><div class="mw-headstat budget"><small>КАССА</small><b data-me-balance>${mon(s.cash)}</b></div><div class="mw-headstat"><small>ДОЛГ</small><b>${mon(s.loan)}</b></div><div class="mw-headstat"><small>ДОВЕРИЕ</small><b>${s.trust}/100</b></div><span class="mw-spacer"></span><button class="mw-iconbtn" data-mwa="save">Сохранить</button><button class="mw-iconbtn ${activeIncidents().length?'warn':''}" data-mwa="news">${activeIncidents().length?'! ':''}События ${activeIncidents().length}</button></header>`;}
-
-  function bottom(){return `<footer class="mw-bottom me4-bottom"><nav><button class="${world.view==='city'?'active':''}" data-mwa="view" data-id="city">Город</button><button class="${world.view==='interior'&&world.selected==='newsroom'?'active':''}" data-mwa="interior" data-id="newsroom">Редакция</button><button class="${world.view==='latest'?'active':''}" data-mwa="view" data-id="latest">Последний номер</button><button class="${world.view==='property'?'active':''}" data-mwa="view" data-id="property">Недвижимость</button><button class="${world.view==='missions'?'active':''}" data-mwa="missions">Цели главы</button><button data-mwa="desk">Верстать номер</button></nav><div class="mw-bottom-summary"><b>№ ${String(Math.min(core().week,12)).padStart(3,'0')} · Городской вестник</b>${core().history.length} выпусков · ${num(core().readers)} читателей</div></footer>`;}
+  function v7Icon(name){
+    const d={
+      city:'<path d="M3 21h18M5 21V9l5-4 5 4v12M15 21V6h5v15M8 12v2m0 3v1m4-6v2m6-5v2m0 3v2"/>',
+      news:'<path d="M4 4h15v16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm3 4h9M7 11h4M7 14h9M7 17h9M3 6v12"/>',
+      goal:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+      bank:'<path d="M3 9 12 3l9 6M4 9h16M5 9v10m5-10v10m4-10v10m5-10v10M3 21h18"/>',
+      home:'<path d="m3 11 9-8 9 8v10H3V11Zm7 10v-7h4v7"/>',
+      land:'<path d="M3 6h18l-3 12H6L3 6Zm6 3v7m6-7v7m-6-3h6"/>',
+      camera:'<path d="M4 4h5M4 4v5m16-5h-5m5 0v5M4 20h5m-5 0v-5m16 5h-5m5 0v-5"/>',
+      report:'<path d="M7 3h10l4 4v14H7V3ZM17 3v5h4M10 12h8M10 16h8M3 8v13"/>',
+      building:'<path d="M4 21V7l7-4 7 4v14M4 10h14M7 14h2m3 0h2m-7 4h2m3 0h2m5 3V11h3v10"/>',
+      bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9M10 21h4"/>',
+      save:'<path d="M5 3h13l3 3v15H3V3Zm2 0v7h10V3M7 21v-8h10v8"/>',
+      quill:'<path d="M3 21c0-8 6-14 17-18-1 10-7 16-17 18Zm0 0 10-11M9 16h7"/>',
+      scroll:'<path d="M6 3h13v16a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Zm0 5h10M6 12h10M6 16h7"/>',
+      spark:'<path d="m12 2 1.5 7.5L21 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2Z"/>',
+      move:'<path d="m9 4 3-3 3 3m-3-3v22m-3-3 3 3 3-3M4 9l-3 3 3 3m-3-3h22m-3-3 3 3-3 3"/>',
+      alert:'<path d="m12 3 10 18H2L12 3Zm0 6v5m0 4h.01"/>',
+      arrow:'<path d="M5 12h14m-6-6 6 6-6 6"/>',
+      wave:'<path d="M3 9q3-4 6 0t6 0t6 0M3 15q3-4 6 0t6 0t6 0"/>',
+      gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.2 2.2m9.8 9.8 2.2 2.2M19.1 4.9l-2.2 2.2m-9.8 9.8-2.2 2.2"/>',
+      time:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+    };
+    return `<svg aria-hidden="true" class="v7-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">${d[name]||d.city}</svg>`;
+  }
+  function header(){
+    const s=core(),n=activeIncidents().length;
+    return `<header class="mw-top v7-top">
+      <button class="v7-brand" data-mwa="view" data-id="city" aria-label="MEDIA EMPIRE — к карте"><span class="v7-brand-seal">${v7Icon('quill')}</span><span class="v7-brand-text">MEDIA <em>EMPIRE</em><small>ИСТОРИЯ МЕДИА</small></span></button>
+      <div class="v7-head-sep"></div>
+      <button class="v7-head-place" data-mwa="view" data-id="city">${v7Icon('city')}<span><b>${esc(CITIES[world.city].name)}</b><small>${world.year} год · ${esc(era().title)}</small></span></button>
+      <button class="v7-top-chapter" data-mwa="missions" title="Цели миссии">${v7Icon('goal')}<span><small>ГЛАВА I / ПЕРВАЯ ГАЗЕТА</small><b>Неделя ${Math.min(s.week,12)} из 12</b></span></button>
+      <div class="v7-top-metrics"><div class="v7-metric"><span>Касса</span><b data-me-balance>${mon(s.cash)}</b></div><div class="v7-metric v7-debt"><span>Кредит</span><b>${mon(s.loan)}</b></div><div class="v7-metric"><span>Доверие</span><b>${s.trust}<i>/100</i></b></div></div>
+      <div class="v7-head-actions"><button class="v7-head-icon" data-mwa="save" title="Сохранить игру" aria-label="Сохранить игру">${v7Icon('save')}</button><button class="v7-head-icon ${n?'has-event':''}" data-mwa="news" title="Городские события" aria-label="События: ${n}">${v7Icon('bell')}${n?`<span class="v7-bubble">${n}</span>`:''}</button></div>
+    </header>`;
+  }
+  function bottom(){
+    const actions=[
+      ['city','Город','view','city'],['news','Редакция','interior','newsroom'],['report','Выпуск','desk',''],['scroll','Газета','view','latest'],['land','Недвижимость','property',''],['goal','Миссии','missions','']
+    ];
+    return `<footer class="mw-bottom v7-bottom"><nav aria-label="Основное игровое меню">${actions.map(([ico,label,act,id])=>`<button class="v7-nav ${((label==='Город'&&world.view==='city')||(label==='Редакция'&&world.view==='interior'&&world.selected==='newsroom')||(label==='Газета'&&world.view==='latest')||(label==='Недвижимость'&&world.view==='property')||(label==='Миссии'&&world.view==='missions'))?'active':''} ${label==='Выпуск'?'v7-nav-cta':''}" data-mwa="${act}" ${id?`data-id="${id}"`:''} title="${label}">${v7Icon(ico)}<span>${label}</span></button>`).join('')}</nav><div class="v7-footer-status"><span class="v7-live-pulse"></span><span>Город живёт</span><b>${num(core().readers)} читателей</b></div></footer>`;
+  }
   function activeIncidents(){return INCIDENTS.filter(i=>i.week<=core().week&&(!world.caseNotes[i.id]||!world.caseNotes[i.id].published));}
   function xSvg(p){return p.map(n=>Math.round(n)).join(',');}
   function coords(pts){return pts.map(xSvg).join(' ');}
@@ -298,50 +337,73 @@
     return `<button type="button" class="me6-parcel ${completed?'completed':progress?'constructing':'owned-land'}" style="left:${p.x}%;top:${p.y}%" data-mwa="${completed?'enter-owned':'lot'}" data-id="${esc(id)}" title="${esc(label)}" aria-label="${esc(label)}: ${esc(id.toUpperCase())}"><svg viewBox="0 0 180 170" aria-hidden="true" focusable="false">${base}${structure}</svg><span class="me6-parcel-caption">${esc(label)}</span></button>`;
   }
 
+  const V7_LABELS={
+    belford:[
+      {id:'newsroom',name:'«Городской вестник»',short:'НАША РЕДАКЦИЯ',icon:'news',x:65.5,y:55.0,featured:true},
+      {id:'hall',name:'Мэрия',short:'ГОРОДСКАЯ ВЛАСТЬ',icon:'bank',x:20.0,y:43.0},
+      {id:'bank',name:'Банк',short:'КРЕДИТЫ',icon:'bank',x:70.0,y:29.0},
+      {id:'chrono',name:'Конкуренты',short:'ДРУГИЕ ИЗДАТЕЛИ',icon:'report',x:33.0,y:48.0},
+      {id:'press',name:'Типография',short:'ПЕЧАТЬ ГАЗЕТ',icon:'gear',x:91.0,y:33.0},
+      {id:'homeA',name:'Жилые дома',short:'ЖИТЕЛИ',icon:'home',x:16.0,y:81.0,small:true},
+      {id:'market',name:'Рынок',short:'ГОРОДСКОЙ РЫНОК',icon:'land',x:40.0,y:82.0,small:true},
+      {id:'homeB',name:'Доходный дом',short:'ЖИТЕЛИ',icon:'home',x:48.0,y:58.0,small:true},
+      {id:'listok',name:'«Народный листок»',short:'КОНКУРЕНТ',icon:'report',x:11.0,y:65.0,small:true},
+      {id:'courier',name:'«Деловой курьер»',short:'КОНКУРЕНТ',icon:'report',x:90.0,y:80.0,small:true},
+      {id:'homeC',name:'Семейный квартал',short:'ЖИТЕЛИ',icon:'home',x:30.0,y:89.0,small:true}
+    ],
+    porthaven:[
+      {id:'portnews',name:'«Пристанские новости»',short:'КОНКУРЕНТ',icon:'news',x:81,y:77,featured:true},
+      {id:'portbank',name:'Портовый банк',short:'ФИНАНСЫ',icon:'bank',x:29,y:63},
+      {id:'porthall',name:'Мэрия',short:'ГОРОДСКАЯ ВЛАСТЬ',icon:'bank',x:71,y:45},
+      {id:'shipyard',name:'Портовые верфи',short:'ПРОМЫШЛЕННОСТЬ',icon:'gear',x:30,y:25},
+      {id:'phouseA',name:'Дома моряков',short:'ЖИТЕЛИ',icon:'home',x:39,y:88,small:true},
+      {id:'phouseB',name:'Торговые дома',short:'ЖИТЕЛИ',icon:'home',x:85,y:81,small:true},
+      {id:'phouseC',name:'Семейные улицы',short:'ЖИТЕЛИ',icon:'home',x:60,y:87,small:true}
+    ]
+  };
+  function v7Traffic(){
+    if(world.motion===false)return '';
+    const port=world.city==='porthaven',modern=world.year>=1985;
+    const tram=`<g transform="translate(-19,-7)"><rect x="0" y="0" width="43" height="16" rx="4" fill="${modern?'#e8edf0':'#9c452e'}" stroke="#281c18" stroke-width="1.5"/><path d="M6 2h6v8H6Zm12 0h6v8h-6Zm12 0h6v8h-6Z" fill="#a2cfce"/><path d="M3 13h36" stroke="#dfbd6e" stroke-width="2.5"/><path d="M18 0v-7l13-4" stroke="#463e30" stroke-width="1.5"/><circle cx="10" cy="16" r="3" fill="#161e20"/><circle cx="34" cy="16" r="3" fill="#161e20"/></g>`;
+    const carriage=`<g transform="translate(-14,-5)"><path d="M2 2h25v9H2Z" rx="2" fill="${modern?'#5b7891':'#6e4333'}" stroke="#1a2624" stroke-width="1.4"/><path d="M6 1h10v-6h-10z" fill="#c6ddd4"/><circle cx="7" cy="12" r="4" fill="#222320" stroke="#d9c4a1"/><circle cx="23" cy="12" r="4" fill="#222320" stroke="#d9c4a1"/></g>`;
+    const unit=(svg,dur,delay,path,opacity=1)=>`<g opacity="${opacity}">${svg}<animateMotion path="${path}" dur="${dur}s" begin="-${delay}s" rotate="auto" repeatCount="indefinite"/></g>`;
+    const routes=port ? [
+      unit(tram,26,6,'M 1230 562 C 980 550 780 605 410 535 S 120 610 -60 644',.85),
+      unit(carriage,31,15,'M -60 650 C 225 589 441 555 660 596 S 1070 555 1380 550',.83)
+    ] : [
+      unit(tram,27,4,'M -50 535 C 190 500 350 446 520 463 S 860 547 1330 587',.9),
+      unit(tram,34,17,'M 1370 588 C 1070 548 830 493 610 476 S 190 505 -60 543',.75),
+      unit(carriage,38,23,'M -70 605 C 270 605 435 535 685 579 S 1000 608 1365 612',.85)
+    ];
+    const seagull=port?`<g stroke="#edf3ea" stroke-width="2" opacity=".58" fill="none"><path d="M0 0q9 -6 18 0q9 -6 18 0"/><animateMotion path="M -20 184C300 150 620 140 1260 207" dur="41s" repeatCount="indefinite"/></g>`:'';
+    const smoke=world.year>=2005?'':(port?[[785,122],[887,134]]:[[1179,156],[1242,143]]).map(([x,y],i)=>`<g><ellipse cx="${x}" cy="${y}" rx="7" ry="5" fill="#e9e6dc" opacity=".3"><animate attributeName="cy" values="${y};${y-50};${y-96}" dur="${7+i*1.7}s" repeatCount="indefinite"/><animate attributeName="rx" values="6;14;26" dur="${7+i*1.7}s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;.15;0" dur="${7+i*1.7}s" repeatCount="indefinite"/></ellipse></g>`).join('');
+    return `<svg class="v7-life" viewBox="0 0 1324 636" preserveAspectRatio="none" aria-hidden="true" focusable="false">${routes.join('')}${seagull}${smoke}</svg>`;
+  }
   function artCity(){
-    const port=world.city==='porthaven';const modern=world.year>=1985;
-    const background=port?'assets/porthaven-1900.webp':'assets/belford-1900.webp';
-    const zones=MAP_HOTSPOTS[world.city].map(z=>`<button type="button" class="me4-zone ${z.kind==='ours'?'is-ours':''}" style="left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%" data-mwa="building" data-id="${z.id}" aria-label="Открыть объект: ${esc(z.name)}" title="Открыть: ${esc(z.name)}"><span class="me4-zonehint">${esc(z.icon)} ${esc(z.name)} · войти</span></button>`).join('');
-    const plots=MAP_PINS[world.city].map(p=>{const r=world.lots[p.id];return r?me6parcel(p,r):`<button class="me4-landpin" style="left:${p.x}%;top:${p.y}%" data-mwa="lot" data-id="${p.id}" title="Купить участок ${p.id.toUpperCase()}">✦ Участок ${p.id.toUpperCase()}</button>`;}).join('');
-    const events=activeIncidents().filter(x=>x.city===world.city).map((event,i)=>`<button class="me4-emergency" style="left:${port?76:87}%;top:${port?58:68}%" data-mwa="incident" data-id="${event.id}" title="Перейти на место происшествия">!<span class="me4-emergency-label">ЧП · На место</span></button>`).join('');
-    const skyline=modern?`<div class="me4-modern-tower tower-a"><i></i></div><div class="me4-modern-tower tower-b"><i></i></div><div class="me4-modern-tower tower-c"><i></i></div>`:'';
-    const camera=world.camera||{zoom:1,x:0,y:0};return `<div class="me6-camera" style="transform:translate(${camera.x||0}%,${camera.y||0}%) scale(${camera.zoom||1})"><div class="me4-artmap ${modern?'me4-future':''} ${world.year>=2050?'me4-neofuture':''}" role="group" aria-label="Интерактивная панорама ${esc(CITIES[world.city].name)}"><img src="${background}" draggable="false" alt="Детально нарисованная панорама промышленного города с редакциями, банком, мэрией, типографией, жилыми кварталами, портом и транспортом"/>${skyline}<div class="me4-art-vignette"></div>${cityLife()}${zones}${plots}${events}<div class="me4-art-grain"></div><div class="me4-map-coordinate">${esc(CITIES[world.city].name)} / ${world.year} · НАЖМИТЕ НА ЗДАНИЕ, ЧТОБЫ ВОЙТИ</div></div></div>`;
+    const port=world.city==='porthaven';const current=world.camera||{zoom:1,x:0,y:0};
+    const bg=port?'assets/porthaven-clean-v07.jpg':'assets/belford-clean-v07.jpg',fallback=port?'assets/porthaven-1900.webp':'assets/belford-1900.webp';
+    const pins=V7_LABELS[world.city].map(z=>`<button class="v7-pin ${z.featured?'featured':''} ${z.small?'mini':''}" data-mwa="building" data-id="${z.id}" style="left:${z.x}%;top:${z.y}%" aria-label="${esc(z.name)} — войти" title="${esc(z.name)}"><span class="v7-pin-icon">${v7Icon(z.icon)}</span><span class="v7-pin-label"><small>${esc(z.short)}</small><b>${esc(z.name)}</b></span></button>`).join('');
+    const plots=MAP_PINS[world.city].map(p=>{const r=world.lots[p.id];return r?me6parcel(p,r):`<button class="v7-plot" style="left:${p.x}%;top:${p.y}%" data-mwa="lot" data-id="${p.id}" title="Купить участок ${p.id.toUpperCase()}">${v7Icon('land')}<span>Участок ${p.id.toUpperCase()}</span></button>`;}).join('');
+    const incident=activeIncidents().filter(i=>i.city===world.city).map((e,i)=>`<button class="v7-incident-pin" style="left:${port?81:90}%;top:${port?57:78}%" data-mwa="incident" data-id="${e.id}" aria-label="Срочное событие: ${esc(e.title)}">${v7Icon('alert')}<span>ЧП</span></button>`).join('');
+    return `<div class="me6-camera" style="transform:translate(${current.x||0}%,${current.y||0}%) scale(${current.zoom||1})"><div class="v7-city-image" role="group" aria-label="Игровая карта: ${esc(CITIES[world.city].name)}"><img src="${bg}" onerror="this.onerror=null;this.src='${fallback}'" alt="Исторический город с редакциями, банком, мэрией, парками и кварталами" draggable="false"/><div class="v7-art-vignette"></div>${v7Traffic()}${pins}${plots}${incident}</div></div>`;
   }
   function cityScreen(){
-    finalizeConstruction();const c=CITIES[world.city],incidents=activeIncidents().filter(i=>i.city===world.city);
-    const holdings=Object.entries(world.lots).filter(([id,x])=>LOTS[id]?.city===world.city&&x.status==='complete').length+(world.city==='belford'?1:0);
-    const news=incidents.length?incidents[0]:null;
+    finalizeConstruction();
+    const c=CITIES[world.city],incidents=activeIncidents().filter(i=>i.city===world.city),event=incidents[0];
+    const {deck,main,issues}=m6status();const holdings=Object.entries(world.lots).filter(([id,x])=>LOTS[id]?.city===world.city&&x.status==='complete').length+(world.city==='belford'?1:0);
+    const free=Object.entries(LOTS).filter(([id,l])=>l.city===world.city&&!world.lots[id]).length;
+    const competitors=Object.values(BLD).filter(b=>b.city===world.city&&b.type==='rival').length;
     const last=core().history.at(-1);
-    return `<div class="mw-city me4-city">
-      <div class="mw-titlebar me4-titlebar">
-        <div><div class="mw-kicker">ИГРОВОЙ МИР / СТРАТЕГИЯ / РЕДАКЦИИ / ЖИТЕЛИ</div><h1>${esc(c.name)} <span>${world.year}</span></h1><p>${esc(c.desc)} · ${esc(era().transport)}</p></div>
-        <div class="mw-selectline me4-selectline"><button class="${world.city==='belford'?'active':''}" data-mwa="city" data-id="belford">◉ Белфорд</button><button class="${world.city==='porthaven'?'active':''}" data-mwa="city" data-id="porthaven">⚓ Порт-Хейвен</button><select data-mws="year" aria-label="Эпоха">${YEARS.map(y=>`<option value="${y}" ${world.year===y?'selected':''}>${y} · ${esc(ERAS[y].title)}</option>`).join('')}</select></div>
-      </div>
-      <div class="mw-mapwrap me4-mapwrap">
-        <div class="mw-map me4-game-map">
-          ${artCity()}
-          <div class="me6-camera-tools" aria-label="Камера города"><button title="Приблизить город" aria-label="Приблизить" data-mwa="camera-in">+</button><span>${Math.round((world.camera?.zoom||1)*100)}%</span><button title="Отдалить город" aria-label="Отдалить" data-mwa="camera-out">−</button><button class="me6-camera-reset" title="Сбросить камеру" data-mwa="camera-reset">⌖</button></div>
-          <div class="me4-map-top"><span>● ЖИВОЙ ГОРОД</span><strong>${num(c.households)} домохозяйств</strong><span>${esc(era().title)}</span><button type="button" class="me5-motion-control" data-mwa="motion" aria-pressed="${world.motion!==false}" title="Включить или выключить движение городского транспорта и дым">${world.motion!==false?'◉ Движение: ВКЛ':'○ Движение: ВЫКЛ'}</button></div>
-          <div class="me4-minimap"><div class="me4-mini-lines"><i></i><i></i><i></i><i></i></div><span>◉ ЦЕНТР ГОРОДА</span><small>${world.city==='belford'?'РАЙОНЫ · ПРИСТАНЬ · ПРИГОРОД':'ПОРТ · ВЕРФИ · ПРИГОРОД'}</small></div>
-          ${news?`<div class="me4-event-ribbon"><span class="me4-red-dot">!</span><div><b>${esc(news.title)}</b><small>${esc(news.where)}</small></div><button data-mwa="incident" data-id="${news.id}">Отправить репортёра →</button></div>`:`<div class="me4-event-ribbon peaceful"><span>✓</span><div><b>В городе спокойно</b><small>Редакция следит за ситуацией</small></div><button data-mwa="news">Журнал событий →</button></div>`}
-        </div>
-        <aside class="mw-side me4-side">
-          <div class="me4-side-hero"><img src="assets/newsroom-1900.webp" alt="Редакционный зал журналистов начала XX века"/><div class="me4-side-caption"><span>ВАША КОМПАНИЯ · ОСНОВАНА В 1900</span><h2>«Городской вестник»</h2></div></div>
-          <div class="me4-side-content"><p>Начните с редакции. Внутри — отделы, сотрудники, планы выпусков и управление газетой.</p>
-            <button class="mw-button primary" data-mwa="building" data-id="newsroom">✒ Войти в редакцию <span>→</span></button>
-            <button class="mw-button" data-mwa="latest">▤ Последний опубликованный номер <span>→</span></button>
-            ${m6mini()}
-            <div class="me4-side-divider"></div><div class="me4-side-kpi"><span>Собственные здания</span><strong>${holdings}</strong></div><div class="me4-side-kpi"><span>Свободных участков</span><strong>${Object.entries(LOTS).filter(([id,l])=>l.city===world.city&&!world.lots[id]).length}</strong></div><div class="me4-side-kpi"><span>Работающие конкуренты</span><strong>${Object.values(BLD).filter(b=>b.city===world.city&&b.type==='rival').length}</strong></div>
-            <div class="me4-side-divider"></div>
-            <div class="me4-smallactions"><button data-mwa="interior" data-id="${world.city==='belford'?'bank':'portbank'}">Банк</button><button data-mwa="interior" data-id="${world.city==='belford'?'hall':'porthall'}">Мэрия</button><button data-mwa="property">Земля / стройка</button></div>
-            <div class="me4-era-note">${world.year===1900?'Историческая визуализация 1900 года':`Переключение на ${world.year}: тест будущих эпох. Полноценная перестройка архитектуры в разработке.`}</div>
-          </div>
-        </aside>
-      </div>
-      <div class="mw-infobar me4-infobar"><span><i></i> Наши здания</span><span><i class="other"></i> Конкуренты</span><span><i class="house"></i> Жилые дома</span><span>✦ Свободные участки</span><span class="right">Нажмите на здание на карте: его интерьер интерактивен</span></div>
-    </div>`;
+    return `<div class="v7-city"><div class="v7-game-scene me4-game-map">
+      ${artCity()}
+      <div class="v7-city-heading"><span class="v7-eyebrow"><span class="v7-dot"></span>ИГРОВОЙ МИР · ${esc(era().title.toUpperCase())}</span><h1>${esc(c.name)} <em>${world.year}</em></h1><p>${esc(c.desc)}</p><div class="v7-city-switch"><button class="${world.city==='belford'?'active':''}" data-mwa="city" data-id="belford">Белфорд</button><button class="${world.city==='porthaven'?'active':''}" data-mwa="city" data-id="porthaven">Порт-Хейвен</button><select data-mws="year" aria-label="Выбрать эпоху">${YEARS.map(y=>`<option value="${y}" ${y===world.year?'selected':''}>${y} · ${esc(ERAS[y].title)}</option>`).join('')}</select></div></div>
+      <button class="v7-mission-peek" data-mwa="missions" aria-label="Открыть цели главы"><span class="v7-mission-upper"><span>${v7Icon('goal')} МИССИЯ · ${issues}/12</span><span>${main.percent}%</span></span><strong>${esc(deck.title)}</strong><small>${esc(main.title)}</small><span class="v7-mission-progress"><i style="width:${main.percent}%"></i></span><span class="v7-mission-more">Все цели ${v7Icon('arrow')}</span></button>
+      <div class="v7-map-controls"><button data-mwa="camera-in" title="Приблизить город" aria-label="Приблизить">+</button><span>${Math.round((world.camera?.zoom||1)*100)}%</span><button data-mwa="camera-out" title="Отдалить город" aria-label="Отдалить">−</button><button data-mwa="camera-reset" title="Центрировать камеру" aria-label="Центрировать">${v7Icon('camera')}</button><button class="v7-motion-btn" data-mwa="motion" aria-pressed="${world.motion!==false}" title="Движение города">${v7Icon('wave')}<span>${world.motion!==false?'Живой город':'Без анимации'}</span></button></div>
+      ${event?`<button class="v7-breaking" data-mwa="incident" data-id="${event.id}"><span class="v7-breaking-icon">${v7Icon('alert')}</span><span class="v7-breaking-copy"><small>СРОЧНО · ${esc(CITIES[event.city].name.toUpperCase())}</small><strong>${esc(event.title)}</strong></span><span class="v7-breaking-arrow">${v7Icon('arrow')}</span></button>`:`<button class="v7-breaking quiet" data-mwa="news"><span class="v7-breaking-icon">${v7Icon('news')}</span><span class="v7-breaking-copy"><small>ДЕЖУРНАЯ РЕДАКЦИЯ</small><strong>Новости и события города</strong></span><span class="v7-breaking-arrow">${v7Icon('arrow')}</span></button>`}
+      <button class="v7-newsroom-shortcut" data-mwa="building" data-id="newsroom">${v7Icon('news')}<span><small>ВАША КОМПАНИЯ</small><strong>Войти в редакцию</strong></span>${v7Icon('arrow')}</button>
+      <div class="v7-corner-note">Нажмите на здание, чтобы войти внутрь · Перетаскивайте карту мышью</div>
+    </div><div class="v7-statusbar"><span>${v7Icon('home')} ${num(c.households)} домохозяйств</span><span>${v7Icon('building')} Наших зданий: <b>${holdings}</b></span><span>${v7Icon('land')} Участков: <b>${free}</b></span><span>${v7Icon('news')} Конкурентов: <b>${competitors}</b></span><button data-mwa="latest">${v7Icon('report')} ${last?`Последний номер №${last.week}`:'Первый выпуск ещё готовится'} ${v7Icon('arrow')}</button></div></div>`;
   }
-
   function floorsArt(id){const b=BLD[id]||{};const year=world.year,isNews=id==='newsroom'||id==='press',bank=id==='bank'||id==='portbank',hall=id==='hall'||id==='porthall',rival=b.type==='rival',house=b.type==='residential';
     const rooms=house?['Прихожая','Кухня','Гостиная','Комната']:bank?['Касса','Кредитный отдел','Кабинет управляющего','Архив']:hall?['Зал совета','Кабинет мэра','Земельный отдел','Архив решений']:isNews?['Редакционный зал','Кабинет главреда','Верстка','Фотоотдел']:rival?['Приёмная','Репортёры','Типографский стол','Дирекция']:['Основной цех','Администрация','Клиенты','Склад'];
     const chosen=world.room||'0';
