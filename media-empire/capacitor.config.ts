@@ -1,11 +1,11 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'com.mediaempire.newspaper',
-  appName: 'Газетная империя',
-  webDir: 'dist',
-  backgroundColor: '#102722',
-  ios: { contentInset: 'always' },
+  appId: "com.mediaempire.newspaper",
+  appName: "Первая полоса",
+  webDir: "dist",
+  backgroundColor: "#e3e8dc",
+  ios: { contentInset: "always" },
 };
 
 export default config;

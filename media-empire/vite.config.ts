@@ -1,13 +1,15 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  server: { host: '0.0.0.0', allowedHosts: ['terminal.local'] },
+  server: { host: "0.0.0.0", allowedHosts: ["terminal.local"] },
   build: {
-    target: 'es2022',
+    target: "es2022",
     rollupOptions: {
-      output: { manualChunks: { engine: ['phaser'], ui: ['react', 'react-dom'] } },
+      output: {
+        manualChunks: { engine: ["three"], ui: ["react", "react-dom"] },
+      },
     },
   },
 });

@@ -1,0 +1,28 @@
+{
+  "real_scarcity": true,
+  "printed_city_consequence": true,
+  "paid_contract_and_useful_construction": {
+    "contract": "completed",
+    "progress": 7300,
+    "press": "open"
+  },
+  "legacy_untouched": true,
+  "whole_party_transfer": true,
+  "invalid_import_retains_party": true,
+  "cross_tab_new_campaign_guard": true,
+  "full_twelve_edition_ui": {
+    "day": 13,
+    "cash": 4702.24,
+    "trust": 99,
+    "readers": 5711,
+    "status": "won"
+  },
+  "all_editions_archived": true,
+  "viewport-360": true,
+  "all_motion_pauses": true,
+  "touch_zoom_and_pan_without_selection": true,
+  "viewport-430": true,
+  "viewport-1440": true,
+  "errors": [],
+  "bad_resources": []
+}

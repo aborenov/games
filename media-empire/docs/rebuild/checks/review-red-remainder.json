@@ -1,0 +1,9 @@
+{
+  "passed": {
+    "corrupt_recovery": true
+  },
+  "failures": {
+    "stale_import": "pending import overwrote a newer revision",
+    "storage_denied": "Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"heading\", name=\"Материал готов\", exact=True) to be visible\n"
+  }
+}

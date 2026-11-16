@@ -1,0 +1,14 @@
+{
+  "passed": {
+    "keyboard_marker": true
+  },
+  "failures": {
+    "marker_drag": "drag on marker selected a building",
+    "marker_pinch": "mixed marker/canvas pinch did not zoom",
+    "stale_reset": "stale confirmation overwrote newer campaign",
+    "stale_import": "Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"heading\", name=\"Первая полоса\", exact=True) to be visible\n",
+    "storage_denied": "Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"heading\", name=\"Первая полоса\", exact=True) to be visible\n",
+    "no_webgl": "Locator.tap: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Бизнес и развитие\", exact=True)\n",
+    "corrupt_recovery": "Locator.wait_for: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"heading\", name=\"Первая полоса\", exact=True) to be visible\n"
+  }
+}

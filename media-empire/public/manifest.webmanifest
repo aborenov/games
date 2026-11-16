@@ -1,15 +1,15 @@
 {
   "id": "/",
-  "name": "MEDIA EMPIRE — Газетная империя",
-  "short_name": "MEDIA EMPIRE",
+  "name": "Первая полоса — город и газета",
+  "short_name": "Первая полоса",
   "description": "Проверяйте истории, выпускайте газету и меняйте Белфорд.",
   "lang": "ru",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#102722",
-  "theme_color": "#102722",
+  "orientation": "any",
+  "background_color": "#e3e8dc",
+  "theme_color": "#e3e8dc",
   "icons": [
     {
       "src": "/assets/app-icon-192.png",

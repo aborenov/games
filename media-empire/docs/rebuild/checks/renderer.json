@@ -1,0 +1,32 @@
+{
+  "phone": {
+    "calls": 107,
+    "triangles": 198127,
+    "geometries": 107,
+    "textures": 14,
+    "pixelRatio": 1,
+    "size": [
+      390,
+      844
+    ],
+    "shadowSize": 1024,
+    "cachedStaticShadows": true
+  },
+  "desktop": {
+    "calls": 201,
+    "triangles": 399188,
+    "geometries": 122,
+    "textures": 14,
+    "pixelRatio": 1,
+    "size": [
+      1440,
+      900
+    ],
+    "shadowSize": 2048,
+    "cachedStaticShadows": false
+  },
+  "dispose": {
+    "geometries": 0,
+    "textures": 0
+  }
+}
