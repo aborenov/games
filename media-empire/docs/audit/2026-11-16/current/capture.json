@@ -1,0 +1,141 @@
+{
+  "screenshots": [
+    "01-city",
+    "02-city-min-zoom",
+    "03-city-plan",
+    "04-factory",
+    "05-reporting",
+    "06-editor-top",
+    "07-editor-publish",
+    "08-result",
+    "09-newspaper"
+  ],
+  "metrics": {
+    "startup_with_browser_seconds": 4.36,
+    "home_buttons": 14,
+    "canvas": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "editor_scroll": {
+      "scrollHeight": 788,
+      "clientHeight": 788
+    },
+    "selected_stories": 6,
+    "resources": [
+      {
+        "name": "/assets/index-DnoQ8HQ8.js",
+        "bytes": 130761,
+        "decoded": 432815
+      },
+      {
+        "name": "/assets/ui-PY5S7aRQ.js",
+        "bytes": 4532,
+        "decoded": 11989
+      },
+      {
+        "name": "/assets/engine-D3izK-R_.js",
+        "bytes": 371836,
+        "decoded": 1387437
+      },
+      {
+        "name": "/assets/index-DSg6Gc9D.css",
+        "bytes": 7869,
+        "decoded": 32044
+      },
+      {
+        "name": "/assets/newspaper-thumb.webp",
+        "bytes": 396452,
+        "decoded": 396152
+      },
+      {
+        "name": "/fonts/editorial-5.woff2",
+        "bytes": 30600,
+        "decoded": 30300
+      },
+      {
+        "name": "/fonts/editorial-8.woff2",
+        "bytes": 29752,
+        "decoded": 29452
+      },
+      {
+        "name": "/fonts/editorial-7.woff2",
+        "bytes": 31204,
+        "decoded": 30904
+      },
+      {
+        "name": "/fonts/editorial-1.woff2",
+        "bytes": 64692,
+        "decoded": 64392
+      },
+      {
+        "name": "/fonts/editorial-3.woff2",
+        "bytes": 61516,
+        "decoded": 61216
+      },
+      {
+        "name": "/fonts/editorial-2.woff2",
+        "bytes": 64888,
+        "decoded": 64588
+      },
+      {
+        "name": "/assets/cities/belford/map.webp",
+        "bytes": 792336,
+        "decoded": 792036
+      },
+      {
+        "name": "/assets/actors/tram.webp",
+        "bytes": 1054470,
+        "decoded": 1054170
+      },
+      {
+        "name": "/assets/actors/walker.webp",
+        "bytes": 468438,
+        "decoded": 468138
+      },
+      {
+        "name": "/assets/actors/boat.webp",
+        "bytes": 717638,
+        "decoded": 717338
+      },
+      {
+        "name": "/assets/actors/walker.json",
+        "bytes": 644,
+        "decoded": 1113
+      },
+      {
+        "name": "/assets/steam.webp",
+        "bytes": 177146,
+        "decoded": 176846
+      },
+      {
+        "name": "/assets/kiosk.webp",
+        "bytes": 1131976,
+        "decoded": 1131676
+      },
+      {
+        "name": "/assets/app-icon.png",
+        "bytes": 300,
+        "decoded": 288436
+      },
+      {
+        "name": "/assets/fire-report.webp",
+        "bytes": 0,
+        "decoded": 517488
+      },
+      {
+        "name": "/assets/reporter.webp",
+        "bytes": 0,
+        "decoded": 283332
+      },
+      {
+        "name": "/assets/paper-texture.webp",
+        "bytes": 0,
+        "decoded": 181482
+      }
+    ]
+  },
+  "errors": []
+}
