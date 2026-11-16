@@ -1,0 +1,12 @@
+{
+  "preview": "http://terminal.local:4173/",
+  "viewport": [
+    390,
+    844
+  ],
+  "fonts": {
+    "display": true,
+    "ui": true
+  },
+  "console_errors": []
+}
