@@ -1,7 +1,7 @@
 export type Channel = 'street' | 'kiosk' | 'subscription';
 export type AdPlan = 'standard' | 'local' | 'exclusive';
 export type BuildingId = 'newsroom' | 'bank' | 'press' | 'market' | 'lot';
-export type Sheet = 'editor' | 'case' | 'building' | 'archive' | 'settings' | 'report' | 'ending' | 'events' | null;
+export type Sheet = 'editor' | 'case' | 'building' | 'archive' | 'settings' | 'report' | 'ending' | 'events' | 'city-plan' | 'place' | null;
 export type BuildStatus = 'locked' | 'building' | 'open';
 export interface Rival {
   id: string; name: string; price: number; printed: number; lastSales: number;

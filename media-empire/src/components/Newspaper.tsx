@@ -1,3 +1,4 @@
+import { BELFORD } from '../world/belford';
 import { ArrowLeft, ArrowUpRight, CheckCircle, NewspaperClipping } from '@phosphor-icons/react';
 import { money, number, price, weekDate } from '../game/content';
 import type { Issue } from '../game/types';
@@ -16,7 +17,7 @@ export function Newspaper({ issue, draft, onClose, onEditor }: {
       <div className="paper-dateline"><span>Суббота, {weekDate(issue.week)}</span><span>№{String(issue.week).padStart(3, '0')}</span><span>{price(issue.price)}</span></div>
       <h2 className="paper-headline">{issue.stories[issue.lead]}</h2>
       <p className="paper-standfirst">{issue.dispatch?.verified ? 'Два источника. Одна история, которую узнает город.' : 'Городские события, люди и решения, которые меняют нашу жизнь.'}</p>
-      <figure className="paper-hero"><img src={fire ? '/assets/fire-report.webp' : '/assets/city-map.webp'} alt={fire ? 'Пожарные и корреспондент у текстильной фабрики Белфорда' : 'Исторические улицы и редакция Белфорда'} /><figcaption>С места событий · корреспонденты «Городского вестника»</figcaption></figure>
+      <figure className="paper-hero"><img src={fire ? '/assets/fire-report.webp' : BELFORD.background} alt={fire ? 'Пожарные и корреспондент у текстильной фабрики Белфорда' : 'Исторические улицы и редакция Белфорда'} /><figcaption>С места событий · корреспонденты «Городского вестника»</figcaption></figure>
       {issue.dispatch?.verified && <p className="paper-proof"><CheckCircle size={20} weight="duotone" /> Факты проверены редакцией</p>}
       <p className="paper-body">{fire ? 'Редакция сопоставила рассказы очевидцев и свидетельства с места пожара. Горожане ждут открытых ответов: что произошло на фабрике и какие меры помогут защитить людей. Мы продолжим следить за этой историей.' : 'Наши корреспонденты прошли по улицам Белфорда, поговорили с жителями и собрали главные новости недели. За каждым городским решением стоят живые люди. Мы даём им возможность быть услышанными.'}</p>
       <div className="paper-secondary">{others.map(id => <section key={id}><h3>{issue.stories[id]}</h3><p>Факты, голоса жителей и взгляд редакции на то, что происходит рядом.</p></section>)}</div>

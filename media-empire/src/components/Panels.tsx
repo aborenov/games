@@ -1,3 +1,4 @@
+import { BELFORD } from '../world/belford';
 import { useRef, useState } from 'react';
 import { ArrowRight, ArrowUpRight, Bank, Bell, CheckCircle, Clock, DownloadSimple, Hammer, NewspaperClipping, ShieldCheck, SpeakerHigh, UploadSimple, Users, WarningCircle } from '@phosphor-icons/react';
 import { bankIsOpen, encodeSave, forecast } from '../game/model';
@@ -16,7 +17,7 @@ export function CasePanel({ state, caseId, now, act, onEditor }: { state: GameSt
   const travelling = record.assigned && !record.arrived;
   const progress = state.reporter.readyAt ? Math.min(1, Math.max(0, 1 - (state.reporter.readyAt - now) / 2800)) : 1;
   return <div className="case-panel">
-    <img className="case-scene" src={definition.art === 'fire' ? '/assets/fire-report.webp' : '/assets/city-map.webp'} alt={definition.art === 'fire' ? 'События у текстильной фабрики' : 'Городские улицы Белфорда'} />
+    <img className="case-scene" src={definition.art === 'fire' ? '/assets/fire-report.webp' : BELFORD.background} alt={definition.art === 'fire' ? 'События у текстильной фабрики' : 'Городские улицы Белфорда'} />
     <p className="case-place">{definition.place}</p><p className="body-copy">{definition.intro}</p>
     <div className="reporter-card"><img src="/assets/reporter.webp" alt="Александр, корреспондент редакции" /><div><strong>Александр Орлов</strong><span>Городской корреспондент</span><small><Clock size={14} />Время на неделе: {state.reporter.actionsLeft} / 4</small></div></div>
     {!record.assigned && <><p className="help">Выезд и каждый источник занимают по одному действию. Новая неделя начинается с выпуска газеты.</p><button className="primary-button" onClick={() => act({ type: 'assign', id: definition.id, now: Date.now() })} disabled={ended || state.reporter.actionsLeft < 1}>Отправить репортёра<ArrowRight size={20} /></button></>}

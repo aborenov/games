@@ -1,0 +1,7 @@
+{
+  "focus_reset_interrupts": true,
+  "motion_disable_and_second_focus": true,
+  "moving_frames_and_full_pause": true,
+  "plan_and_place_cards": true,
+  "errors": []
+}

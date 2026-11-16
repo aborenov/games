@@ -18,10 +18,10 @@ with sync_playwright() as p:
  tap(page,'Отправить репортёра');page.get_by_role('button',name=re.compile('^Опросить очевидца')).wait_for(state='visible')
  tap(page,re.compile('^Опросить очевидца'),False);tap(page,re.compile('^Осмотреть место'),False);tap(page,'На первую полосу')
  assert data(page)['headlineEdit']['verified'] is True
- page.screenshot(path=str(out/'03-investigation.png'))
+ page.screenshot(animations='disabled',path=str(out/'03-investigation.png'))
  tap(page,'Закрыть окно');page.reload(wait_until='networkidle');page.locator('.city-loading').wait_for(state='hidden')
  assert data(page)['headlineEdit']['title']=='Пожар на фабрике: город требует ответов'
- tap(page,'Развернуть макет газеты');page.locator('.paper-headline').wait_for();assert page.locator('.paper-headline').inner_text()==data(page)['headlineEdit']['title'];page.screenshot(path=str(out/'04-newspaper-draft.png'))
+ tap(page,'Развернуть макет газеты');page.locator('.paper-headline').wait_for();assert page.locator('.paper-headline').inner_text()==data(page)['headlineEdit']['title'];page.screenshot(animations='disabled',path=str(out/'04-newspaper-draft.png'))
  for _ in range(10):
   page.locator('body').aria_snapshot();page.keyboard.press('Tab');assert page.evaluate('!!document.activeElement.closest("dialog[open]")')
  page.locator('body').aria_snapshot();page.keyboard.press('Escape');assert page.locator('dialog[open]').count()==0
@@ -29,13 +29,13 @@ with sync_playwright() as p:
  assert results['paper_focus_restored']=='Развернуть макет газеты'
  tap(page,'Свободный участок — построить киоск');tap(page,'Купить участок · 500 $');tap(page,'Начать строительство · 820 $')
  assert data(page)['cash']==2680 and data(page)['city']['kiosk']['status']=='building'
- tap(page,'Закрыть окно');page.screenshot(path=str(out/'05-construction.png'))
- tap(page,'Редакция');page.screenshot(path=str(out/'06-editor.png'));tap(page,'Выпустить номер');page.get_by_role('heading',name='Номер вышел!',exact=True).wait_for()
+ tap(page,'Закрыть окно');page.screenshot(animations='disabled',path=str(out/'05-construction.png'))
+ tap(page,'Редакция');page.screenshot(animations='disabled',path=str(out/'06-editor.png'));tap(page,'Выпустить номер');page.get_by_role('heading',name='Номер вышел!',exact=True).wait_for()
  first=data(page);assert first['week']==2 and first['city']['kiosk']['status']=='open' and first['history'][0]['dispatch']['verified'] is True
- page.screenshot(path=str(out/'07-issue-report.png'));tap(page,'Вернуться в город');page.screenshot(path=str(out/'08-city-kiosk-open.png'))
+ page.screenshot(animations='disabled',path=str(out/'07-issue-report.png'));tap(page,'Вернуться в город');page.screenshot(animations='disabled',path=str(out/'08-city-kiosk-open.png'))
  assert 'Ваш киоск открыт' in page.locator('.event-push').inner_text()
  tap(page,'Развернуть опубликованный выпуск №1');assert page.locator('.paper-headline').inner_text()==first['history'][0]['stories'][0]
- page.screenshot(path=str(out/'09-published-newspaper.png'));tap(page,'Закрыть окно')
+ page.screenshot(animations='disabled',path=str(out/'09-published-newspaper.png'));tap(page,'Закрыть окно')
  tap(page,'Настройки игры')
  with page.expect_download() as d:tap(page,'Скачать сохранение')
  save=out/'mobile-save.json';d.value.save_as(save);snapshot=data(page);results['first_issue']={k:first['history'][0][k] for k in ['week','sold','profit','cash','trustAfter']}
@@ -46,7 +46,7 @@ with sync_playwright() as p:
  invalid=out/'invalid.json';invalid.write_text('{"format":"media-empire-mobile","cash":999999}')
  with p2.expect_file_chooser() as f:tap(p2,'Загрузить сохранение')
  f.value.set_files(str(invalid));p2.get_by_text('Этот файл не является совместимым сохранением мобильной игры.',exact=True).wait_for();assert data(p2)==snapshot
- results['invalid_import_retains_state']=True;p2.screenshot(path=str(out/'10-invalid-import-safe.png'));c2.close()
+ results['invalid_import_retains_state']=True;p2.screenshot(animations='disabled',path=str(out/'10-invalid-import-safe.png'));c2.close()
  tap(page,'Закрыть окно')
  before=page.locator('.newsroom-pin').evaluate('(el)=>el.getBoundingClientRect().top')
  tap(page,'Приблизить карту');after=page.locator('.newsroom-pin').evaluate('(el)=>el.getBoundingClientRect().top');assert abs(after-before)>10
@@ -56,16 +56,16 @@ with sync_playwright() as p:
   page.locator('body').aria_snapshot();session.send('Input.dispatchTouchEvent',{'type':kind,'touchPoints':[{'x':x,'y':y,'id':i} for i,(x,y) in enumerate(points)]})
  pinched=page.locator('.newsroom-pin').evaluate('(el)=>el.getBoundingClientRect().top')
  assert abs(pinched-before)>10
- page.screenshot(path=str(out/'11-pinch-zoom.png'));results['pinch_zoom_work']=True;results['zoom_buttons_work']=True;tap(page,'Вернуть камеру')
+ page.screenshot(animations='disabled',path=str(out/'11-pinch-zoom.png'));results['pinch_zoom_work']=True;results['zoom_buttons_work']=True;tap(page,'Вернуть камеру')
  while data(page)['week']<=12:
   tap(page,'Редакция')
   if data(page)['week']==4:tap(page,'Опубликовать')
   tap(page,'Выпустить номер');page.get_by_role('heading',name='Номер вышел!',exact=True).wait_for();tap(page,'Вернуться в город')
  assert data(page)['status']=='complete' and len(data(page)['history'])==12
  tap(page,'Первая глава завершена Двенадцать выпусков изменили вашу редакцию и город.')
- page.screenshot(path=str(out/'12-chapter-ending.png'));results['chapter']={k:data(page)[k] for k in ['week','cash','trust','status']};c.close()
+ page.screenshot(animations='disabled',path=str(out/'12-chapter-ending.png'));results['chapter']={k:data(page)[k] for k in ['week','cash','trust','status']};c.close()
  for w,h in [(360,740),(430,932)]:
-  cx,px=context(w,h);px.screenshot(path=str(out/('responsive-'+str(w)+'.png')));assert px.evaluate('document.documentElement.scrollWidth===innerWidth');results['viewport-'+str(w)]=True;cx.close()
+  cx,px=context(w,h);px.screenshot(animations='disabled',path=str(out/('responsive-'+str(w)+'.png')));assert px.evaluate('document.documentElement.scrollWidth===innerWidth');results['viewport-'+str(w)]=True;cx.close()
  b.close()
 results['errors']=errors;results['bad_resources']=bad
 (out/'playthrough-results.json').write_text(json.dumps(results,ensure_ascii=False,indent=2));print(json.dumps(results,ensure_ascii=False,indent=2))

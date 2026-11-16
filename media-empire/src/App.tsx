@@ -1,3 +1,5 @@
+import { BELFORD } from './world/belford';
+import { CityPlan, CityPlacePanel } from './components/CityPlaces';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { ArrowRight, ArrowsOutSimple, Bell, CheckCircle, GearSix, MapTrifold, NewspaperClipping, PenNib, Printer, ShieldCheck, Warning, X } from '@phosphor-icons/react';
 import { CityMap } from './components/CityMap';
@@ -16,6 +18,8 @@ export default function App() {
   const state = useSyncExternalStore(gameStore.subscribe, gameStore.getSnapshot);
   const [sheet, setSheet] = useState<SheetName>(null);
   const [building, setBuilding] = useState<BuildingId>('newsroom');
+  const [placeId,setPlaceId]=useState('hall');
+  const [cameraTarget,setCameraTarget]=useState<{id:string;serial:number}|null>(null);
   const [caseId, setCaseId] = useState('fire');
   const [paper, setPaper] = useState<{ index: number | null; draft: boolean } | null>(null);
   const [toast, setToast] = useState('');
@@ -98,7 +102,9 @@ export default function App() {
   const displayedPaper = paper?.draft || !state.history.length ? draftIssue(state) : state.history[paper?.index ?? state.history.length - 1];
   const isDraft = paper?.draft === true || !state.history.length;
   const unread = state.notifications.filter(n => !n.dismissed).length;
-  let title = '', eyebrow = '';
+  let title='',eyebrow='';
+  if(sheet==='city-plan'){title='План города';eyebrow=BELFORD.title.toUpperCase();}
+  if(sheet==='place'){const p=BELFORD.places.find(p=>p.id===placeId);title=p?.title??'Город';eyebrow=p?.district.toUpperCase()??'';}
   if (sheet === 'editor') { title = 'Редакционный стол'; eyebrow = 'ВЫПУСК №' + String(Math.min(state.week, 12)).padStart(3, '0'); }
   if (sheet === 'case') { title = CASES.find(c => c.id === caseId)?.title ?? 'Городское событие'; eyebrow = 'БЛОКНОТ РЕПОРТЁРА'; }
   if (sheet === 'building') { title = BUILDINGS[building].title; eyebrow = BUILDINGS[building].eyebrow; }
@@ -109,7 +115,7 @@ export default function App() {
   if (sheet === 'events') { title = 'О чём говорит Белфорд'; eyebrow = 'ГОРОДСКИЕ СОБЫТИЯ'; }
 
   return <main className="game-app" data-motion={state.settings.motion ? 'on' : 'off'}>
-    <CityMap state={state} onBuilding={openBuilding} />
+    <CityMap state={state} city={BELFORD} target={cameraTarget} onBuilding={openBuilding} onPlace={id=>{setPlaceId(id);setSheet('place');}} onPlan={()=>setSheet('city-plan')}/>
     <header className="game-hud">
       <div className="brand"><NewspaperClipping size={24} weight="duotone" /><span>MEDIA <b>EMPIRE</b></span></div>
       <div className="hud-week"><small>Неделя</small><strong>{Math.min(state.week, 12)} <em>/ 12</em></strong></div>
@@ -117,7 +123,7 @@ export default function App() {
       <div className="hud-trust" aria-label={'Доверие ' + state.trust + ' из 100'}><ShieldCheck size={16} /><strong>{state.trust}</strong></div>
       <button className="hud-gear" aria-label="Настройки игры" onClick={() => setSheet('settings')}><GearSix size={21} /></button>
     </header>
-    <div className="city-heading"><h1>Белфорд <span>1900</span></h1><p>{weekDate(Math.min(state.week, 12)).toUpperCase()}</p><span className="heading-rule" /></div>
+    <div className="city-heading"><h1>{BELFORD.title} <span>{BELFORD.year}</span></h1><p>{weekDate(Math.min(state.week, 12)).toUpperCase()}</p><span className="heading-rule" /></div>
     {notice && !publishing && <aside className={'event-push ' + notice.tone} aria-label="Новое событие"><button onClick={() => openNotice(notice)} className="event-push-action">{notice.tone === 'good' ? <CheckCircle className="event-symbol" size={25} /> : notice.tone === 'urgent' ? <Warning className="event-symbol" size={27} weight="duotone" /> : <Bell className="event-symbol" size={24} />}<span><strong>{notice.title}</strong><small>{notice.body}</small></span><span className="event-arrow"><ArrowRight size={17} /></span></button></aside>}
     {state.reporter.readyAt && <button className="reporter-trip" onClick={() => { setCaseId(state.reporter.activeCase ?? 'fire'); setSheet('case'); }}><img src="/assets/reporter.webp" alt="" /><span>Репортёр в пути…</span><ArrowRight size={15} /></button>}
     <button className="city-events-button" aria-label={'Городские события, новых: ' + unread} onClick={() => setSheet('events')}><Bell size={20} weight="duotone" />{unread > 0 && <span>{unread}</span>}</button>
@@ -132,6 +138,8 @@ export default function App() {
     {paper && <Newspaper issue={displayedPaper} draft={isDraft} onClose={() => setPaper(null)} onEditor={openEditor} />}
     {sheet && <Sheet key={sheet + (sheet === 'building' ? building : '')} title={title} eyebrow={eyebrow} onClose={() => setSheet(null)} className={sheet === 'report' ? 'report-sheet' : ''}>
       {toast && <div className="sheet-toast" role="status"><span>{toast}</span><button aria-label="Закрыть уведомление" onClick={() => setToast('')}><X size={18} /></button></div>}
+      {sheet==='city-plan'&&<CityPlan city={BELFORD} onFocus={id=>{setCameraTarget({id,serial:Date.now()});setSheet(null);}}/>}
+      {sheet==='place'&&<CityPlacePanel city={BELFORD} id={placeId} onEditor={openEditor}/>}
       {sheet === 'editor' && <Editor state={state} act={act} onPublish={publish} onPaper={() => openPaper(true)} onBank={() => openBuilding('bank')} publishing={publishing} />}
       {sheet === 'case' && <CasePanel state={state} caseId={caseId} now={now} act={act} onEditor={openEditor} />}
       {sheet === 'building' && <BuildingPanel state={state} id={building} act={act} onEditor={openEditor} onClose={() => setSheet(null)} />}
