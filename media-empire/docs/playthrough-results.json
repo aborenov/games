@@ -1,0 +1,24 @@
+{
+  "paper_focus_restored": "Развернуть макет газеты",
+  "first_issue": {
+    "week": 1,
+    "sold": 9000,
+    "profit": 659,
+    "cash": 3339,
+    "trustAfter": 65
+  },
+  "full_transfer": true,
+  "invalid_import_retains_state": true,
+  "pinch_zoom_work": true,
+  "zoom_buttons_work": true,
+  "chapter": {
+    "week": 13,
+    "cash": 8605,
+    "trust": 75,
+    "status": "complete"
+  },
+  "viewport-360": true,
+  "viewport-430": true,
+  "errors": [],
+  "bad_resources": []
+}

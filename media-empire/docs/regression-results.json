@@ -1,0 +1,10 @@
+{
+  "touch_pan": true,
+  "trip_across_publication": true,
+  "restore_excluded_report": true,
+  "carry_report_to_next_issue": true,
+  "malformed_enum_preserves_party": true,
+  "damaged_save_recovery_download": true,
+  "errors": [],
+  "bad_resources": []
+}

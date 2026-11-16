@@ -1,0 +1,13 @@
+{
+  "passed": {
+    "marker_drag": true,
+    "marker_pinch": true,
+    "keyboard_marker": true,
+    "stale_reset": true,
+    "stale_import": true,
+    "storage_denied": true,
+    "no_webgl": true,
+    "corrupt_recovery": true
+  },
+  "failures": {}
+}

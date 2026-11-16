@@ -1,0 +1,11 @@
+{"name":"default","actions":13,"cash":9546,"trust":71,"rank":2,"verified":0,"minProfit":192,"profit":5546}
+{"name":"hold","actions":13,"cash":9191,"trust":62,"rank":2,"verified":0,"minProfit":192,"profit":5191}
+{"name":"verified","actions":29,"cash":9908,"trust":87,"rank":2,"verified":4,"minProfit":187,"profit":5908}
+{"name":"rushed","actions":21,"cash":9038,"trust":63,"rank":2,"verified":0,"minProfit":187,"profit":5038}
+{"name":"static-win","actions":15,"cash":8856,"trust":95,"rank":1,"verified":0,"minProfit":25,"profit":4856}
+{"name":"press","actions":14,"cash":8430,"trust":71,"rank":2,"verified":0,"minProfit":192,"profit":6180}
+{"name":"kiosk","actions":15,"cash":8874,"trust":71,"rank":2,"verified":0,"minProfit":198,"profit":6194}
+{"name":"both","actions":16,"cash":7758,"trust":71,"rank":2,"verified":0,"minProfit":198,"profit":6828}
+{"docsWithoutArticle":{"selected":[1,3,4,5,6,7],"holdTrust":-3,"publishTrust":6,"holdProfit":315,"publishProfit":315}}
+{"lateFire":{"week":11,"headline":{"title":"Пожар на фабрике: город требует ответов","week":11,"caseId":"fire","verified":true,"settleTrust":true}}}
+{"finalBorrow":{"ordinaryCash":9546,"ordinaryLoan":2000,"borrowedCash":17474,"borrowedLoan":10000,"displayedGain":7928,"netWorthDifference":-72}}

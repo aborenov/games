@@ -1,0 +1,24 @@
+name: Newspaper game
+on:
+  push:
+    paths: ['media-empire/**', '.github/workflows/newspaper.yml']
+  pull_request:
+    paths: ['media-empire/**', '.github/workflows/newspaper.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: media-empire
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: media-empire/.nvmrc
+          cache: npm
+          cache-dependency-path: media-empire/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
